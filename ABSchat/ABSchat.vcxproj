@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;ASIO_STANDALONE;_WEBSOCKETPP_CPP11_STL_;_WEBSOCKETPP_CPP11_FUNCTIONAL_;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\dev\libraries\jwt-cpp\include;D:\dev\libraries\socket.io-client-cpp\src;D:\dev\libraries\socket.io-client-cpp\lib\rapidjson\include;D:\dev\libraries\socket.io-client-cpp\lib\websocketpp;D:\dev\libraries\socket.io-client-cpp\lib\asio\asio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,6 +121,7 @@
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;ASIO_STANDALONE;_WEBSOCKETPP_CPP11_STL_;_WEBSOCKETPP_CPP11_FUNCTIONAL_;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\dev\libraries\jwt-cpp\include;D:\dev\libraries\socket.io-client-cpp\src;D:\dev\libraries\socket.io-client-cpp\lib\rapidjson\include;D:\dev\libraries\socket.io-client-cpp\lib\websocketpp;D:\dev\libraries\socket.io-client-cpp\lib\asio\asio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +144,8 @@
     <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_message.h" />
     <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_socket.h" />
     <ClInclude Include="Bot.hpp" />
+    <ClInclude Include="HardCode.hpp" />
+    <ClInclude Include="HTTPClient.hpp" />
     <ClInclude Include="KEYS.hpp" />
   </ItemGroup>
   <ItemGroup>
