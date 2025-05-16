@@ -16,8 +16,7 @@ public:
     Bot(const std::string key) :
         bot(key)
     {
-        initResponses();
-        connectWithServer();
+        initResponsesTG();
     }
 
     void Run()
