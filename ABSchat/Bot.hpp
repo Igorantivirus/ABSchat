@@ -7,10 +7,9 @@
 #include <regex>
 
 #include <tgbot/tgbot.h>
-#include <nlohmann/json.hpp>
 #include <sio_client.h>
+#include <nlohmann/json.hpp>
 #include <jwt-cpp/jwt.h>
-#include <boost/asio.hpp>
 
 #include "HTTPClient.hpp"
 #include "HardCode.hpp"
@@ -280,7 +279,6 @@ private:
     {
         if (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message))
             return;
-        std::cout << "size: " << message->text.size() << '\n';
         if (!registered(std::to_string(message->from->id)))
             bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
         else if (chats.find(message->chat->id) == chats.end())
