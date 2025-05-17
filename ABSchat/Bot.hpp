@@ -239,6 +239,14 @@ private:
                 bot.getApi().sendMessage(chatId, message);
     }
 
+    bool notGeneralInSuperGroup(TgBot::Message::Ptr message)
+    {
+        return message->chat != nullptr &&
+            message->chat->type == TgBot::Chat::Type::Supergroup &&
+            message->chat->isForum &&
+            message->isTopicMessage;
+    }
+
     #pragma region botResponser
 
     void start(TgBot::Message::Ptr message)
@@ -360,7 +368,7 @@ private:
     }
     void processMessage(TgBot::Message::Ptr message)
     {
-        if (message->text.empty() || message->text[0] == '/')
+        if (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message))
             return;
         std::cout << "size: " << message->text.size() << '\n';
         if (!registered(std::to_string(message->from->id)))
