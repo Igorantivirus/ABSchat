@@ -277,6 +277,18 @@ private:
     }
     void processMessage(TgBot::Message::Ptr message)
     {
+        if(message->voice) {
+            std::cout << "VOICE!!! " << std::endl;
+            auto file = bot.getApi().getFile(message->voice->fileId);
+            std::string downloadLink = "https://api.telegram.org/file/bot" + config.TG_BOT_KEY + "/" + file->filePath;
+
+            auto msg = sio::object_message::create();
+            msg->get_map()["filePath"] = sio::string_message::create(file->filePath);
+            msg->get_map()["downloadLink"] = sio::string_message::create(downloadLink);
+            msg->get_map()["id"] = sio::string_message::create(std::to_string(message->from->id));
+
+            client.socket()->emit("voice_message", msg);
+        }
         if (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message))
             return;
         if (!registered(std::to_string(message->from->id)))
@@ -326,7 +338,7 @@ private:
             {makeButton("/renew"),makeButton("/online")},
             {makeButton("/stopChat"),makeButton("/startChat"),makeButton("/break")}
         };
-        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"), false, 0, kb);
+        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"), nullptr, 0, kb);
     }
 
     #pragma endregion
