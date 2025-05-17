@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="BotHeaders">
+      <UniqueIdentifier>{7dbe06b8-00fd-44c2-a343-9b8248393abf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,18 +51,18 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Bot.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="KEYS.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="HTTPClient.hpp">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>BotHeaders</Filter>
     </ClInclude>
     <ClInclude Include="HardCode.hpp">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>BotHeaders</Filter>
     </ClInclude>
-    <ClInclude Include="Client.hpp">
+    <ClInclude Include="HTTPClient.hpp">
+      <Filter>BotHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="KEYS.hpp">
+      <Filter>BotHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSaver.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

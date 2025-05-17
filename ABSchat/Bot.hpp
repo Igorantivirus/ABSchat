@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <map>
 #include <set>
@@ -13,6 +13,11 @@
 #include "HTTPClient.hpp"
 #include "HardCode.hpp"
 
+#define URL_SERVER_BOT "http://beta.abserver.ru/bots_act/tg"
+#define API_KEY "o48c9qw0m4"
+
+using RowJson = std::map<std::string, std::string>;
+
 class Bot
 {
 public:
@@ -22,10 +27,10 @@ public:
         initResponsesTG();
         initListeningSock();
 
-        connectWithServer();
+        //connectWithServer();
     }
 
-    void Run()
+    void run()
     {
         try
         {
@@ -33,8 +38,8 @@ public:
             TgBot::TgLongPoll longPoll(bot);
             while (true)
             {
-                if (!client.opened())
-                    reconectTry();
+                /*if (!client.opened())
+                    reconectTry();*/
                 std::cout << "Long poll started" << '\n';
                 longPoll.start();
             }
@@ -58,6 +63,15 @@ private:
     std::set<int64_t> chats;
 
 private:
+
+    std::string getUserIdFromServSafely(const std::int64_t id)
+    {
+        std::string idTg = std::to_string(id);
+        auto found = users.find(idTg);
+        if (found == users.end())
+            return "";
+        return found->second;
+    }
 
     void reconectTry()
     {
@@ -83,38 +97,6 @@ private:
         std::map<std::string, std::string> query;
         query["token"] = token;
         client.connect("http://beta.abserver.ru", query);
-    }
-
-    //Регистрация пользователя на сервере
-    //return id пользователя на сайте
-    std::string getRequest(const std::string& authCode, std::string userId)
-    {
-        std::map<std::string, std::string> json =
-        {
-            {"code_server", "o48c9qw0m4"},
-            {"act", "reg"},
-            {"code", authCode},
-            {"id_tg", userId},
-        };
-
-        HttpClient client;
-        std::string result = client.getRequastParam("http://beta.abserver.ru/bots_act/tg", json);
-
-        if (result.empty())
-        {
-            std::cout << "Error of get request\n";
-            return "";
-        }
-
-        nlohmann::json res = nlohmann::json::parse(result);
-
-        if (res["code"] != "true")
-        {
-            std::cerr << "Error of connect" << '\n';
-            return "";
-        }
-
-        return res["id"];
     }
 
     //проверка что пользователь зареган (idTg)
@@ -143,25 +125,77 @@ private:
                 bot.getApi().sendMessage(chatId, message);
     }
 
-#pragma region BotResponser
+    #pragma region botResponser
 
     void start(TgBot::Message::Ptr message)
     {
-        std::string mes = message->text;
-        if (std::size_t ind = mes.find(' '); ind != std::string::npos)
-            mes.erase(mes.begin(), mes.begin() + ind + 1);
-
-        std::string userId = std::to_string(message->from->id);
-        std::string idTg = getRequest(mes, userId);
-
-        if (idTg.empty())
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Пошёл вон - шалопай!"));
-        else
+        std::string pr = message->text;
+        RowJson param =
         {
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"));
-            users[idTg] = userId;
-            chats.insert(message->chat->id);
+            {"code_server", "o48c9qw0m4"},
+            {"act", "reg"},
+            {"code", eraseBeforeForstSpace(message->text)},
+            {"id_tg", std::to_string(message->from->id)},
+        };
+        HttpClient http;
+        std::string responce = http.getRequastParam(URL_SERVER_BOT, param);
+
+        nlohmann::json json = nlohmann::json::parse(responce);
+
+        if (json["code"] != "true")
+        {
+            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Не удалось харегестрироваться."));
+            return;
         }
+
+        std::string servUserId = json["id"].dump();    //Добавление зарегестрированного пользователя
+        chats.insert(message->chat->id);        //Добавление чата для отправки
+        users[std::to_string(message->from->id)] = servUserId;
+        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"));
+    }
+    void renew(TgBot::Message::Ptr message)
+    {
+        RowJson param =
+        {
+            {"code_server", "o48c9qw0m4"},
+            {"act", API_KEY},
+            {"id", getUserIdFromServSafely(message->from->id)}
+        };
+        HttpClient http;
+        std::string responce = http.getRequastParam(URL_SERVER_BOT, param);
+
+        nlohmann::json json = nlohmann::json::parse(responce);
+        std::string result;
+        if (json["code"].empty())
+            result = to_utf8(L"Ошибка обращения к серверу.");
+        else if(json["code"] == "true")
+            result = to_utf8(L"Сервер продлён.");
+        else if(json["code"] == "not reg")
+            result = to_utf8(L"Вы не зарегестрированы в тг боте.");
+        else if(json["code"] == "already")
+            result = to_utf8(L"Сервер уже работает! Проверьте состояние сервера");
+        else
+            result = to_utf8(L"Сервер не был продлён.");
+        bot.getApi().sendMessage(message->chat->id, result);
+    }
+    void online(TgBot::Message::Ptr message)
+    {
+        RowJson param = {
+            {"code_server", API_KEY},
+            {"act", "online"},
+            {"id", getUserIdFromServSafely(message->from->id)}
+        };
+        HttpClient http;
+        std::string responce = http.getRequastParam(URL_SERVER_BOT, param);
+
+        nlohmann::json json = nlohmann::json::parse(responce);
+        std::string result;
+        if (json["code"] != "1")
+            result = to_utf8(L"Всего играет: ") + json["online"].dump() + '\n' + json["list"].dump();
+        else
+            result = to_utf8(L"Ошибка просмотра онлайна.");
+
+        bot.getApi().sendMessage(message->chat->id, result);
     }
     void processMessage(TgBot::Message::Ptr message)
     {
@@ -174,19 +208,21 @@ private:
         {
             sendMessageToServer(message->text, users[std::to_string(message->chat->id)]);
             std::string mes = '<' + message->from->username + '>' + message->text;
-            sendMessageToAllTgExcept(mes, message->chat->id);
+            sendMessageToAllTgExcept(mes/*, message->chat->id*/);
         }
     }
 
 	void initResponsesTG()
 	{
         bot.getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {start(message); });
+        bot.getEvents().onCommand("renew", [this](TgBot::Message::Ptr message) {renew(message); });
+        bot.getEvents().onCommand("online", [this](TgBot::Message::Ptr message) {online(message); });
         bot.getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {processMessage(message); });
 	}
 
-#pragma endregion
+    #pragma endregion
 
-#pragma region clientListener
+    #pragma region clientListener
 
     void connectSuccess()
     {
@@ -230,7 +266,7 @@ private:
         client.socket()->on("message", [this](sio::event& ev) {onMessageResponse(ev); });
     }
 
-#pragma endregion
+    #pragma endregion
 
 
 };

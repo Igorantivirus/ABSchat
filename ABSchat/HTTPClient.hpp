@@ -15,6 +15,7 @@ public:
         for (const auto& [key, value] : json)
             nortmUrl += key + '=' + value + '&';
         nortmUrl.pop_back();
+        std::cout << nortmUrl << '\n';
         return getRequest(nortmUrl);
     }
 

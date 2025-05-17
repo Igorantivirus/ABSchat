@@ -144,7 +144,7 @@
     <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_message.h" />
     <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_socket.h" />
     <ClInclude Include="Bot.hpp" />
-    <ClInclude Include="Client.hpp" />
+    <ClInclude Include="FileSaver.hpp" />
     <ClInclude Include="HardCode.hpp" />
     <ClInclude Include="HTTPClient.hpp" />
     <ClInclude Include="KEYS.hpp" />
