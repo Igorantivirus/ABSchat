@@ -30,14 +30,12 @@ class Bot
     bool running_ = true;
     std::thread server_thread_;
 
-
-
 public:
     Bot(const std::string configPath) :
-                               config(loadConfig(configPath)), bot(config.TG_BOT_KEY), saver{ users, chats, config.FILE_TO_SAVE }, log{ config.LOG_FILE, true}, acceptor_(io_context_, boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(config.minecraft_server_ip), config.minecraft_server_port))
+        config(loadConfig(configPath)), bot(config.TG_BOT_KEY), saver{ users, chats, config.FILE_TO_SAVE }, log{ config.LOG_FILE, true }, acceptor_(io_context_, boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(config.minecraft_server_ip), config.minecraft_server_port))
     {
         saver.readFromFile();
-
+        
         initResponsesTG();
         initListeningSock();
 
@@ -167,6 +165,7 @@ public:
 private:
 
 	TgBot::Bot bot;
+
     sio::client client;
     //первое id - с тг, второе с сайта
     std::map<std::string, std::string> users;
@@ -177,7 +176,7 @@ private:
 
 private:
 
-    std::string getUserIdFromServSafely(const std::int64_t id)
+    std::string getUserIdFromServSafely(const std::int64_t id) const
     {
         std::string idTg = std::to_string(id);
         auto found = users.find(idTg);
@@ -185,6 +184,24 @@ private:
             return "";
         return found->second;
     }
+
+    void sendMessageToAllTgExcept(const std::string& message, const std::int64_t exceptIdTg = 0)
+    {
+        for (const auto& chatId : chats)
+            if(chatId != exceptIdTg)
+                bot.getApi().sendMessage(chatId, message);
+    }
+
+    //проверка, что чат - сообщество и не general
+    bool notGeneralInSuperGroup(TgBot::Message::Ptr message)
+    {
+        return message->chat != nullptr &&
+            message->chat->type == TgBot::Chat::Type::Supergroup &&
+            message->chat->isForum &&
+            message->isTopicMessage;
+    }
+
+    #pragma region connectionMethods
 
     void reconectTry()
     {
@@ -232,20 +249,7 @@ private:
         client.socket()->emit("message_tg", msg);
     }
 
-    void sendMessageToAllTgExcept(const std::string& message, const std::int64_t exceptIdTg = 0)
-    {
-        for (const auto& chatId : chats)
-            if(chatId != exceptIdTg)
-                bot.getApi().sendMessage(chatId, message);
-    }
-
-    bool notGeneralInSuperGroup(TgBot::Message::Ptr message)
-    {
-        return message->chat != nullptr &&
-            message->chat->type == TgBot::Chat::Type::Supergroup &&
-            message->chat->isForum &&
-            message->isTopicMessage;
-    }
+    #pragma endregion
 
     #pragma region botResponser
 
@@ -274,7 +278,7 @@ private:
         chats.insert(message->chat->id);        //Добавление чата для отправки
         users[std::to_string(message->from->id)] = servUserId;
         saver.saveToFile();
-        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"));
+        sendHelloWithKeyboard(message);
     }
     void renew(TgBot::Message::Ptr message)
     {
@@ -388,7 +392,7 @@ private:
 
 	void initResponsesTG()
 	{
-        bot.getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {start(message); });
+        bot.getEvents().onCommand("start", [this](TgBot::Message::Ptr message) { start(message); });
         bot.getEvents().onCommand("renew", [this](TgBot::Message::Ptr message) {renew(message); });
         bot.getEvents().onCommand("online", [this](TgBot::Message::Ptr message) {online(message); });
         bot.getEvents().onCommand("break", [this](TgBot::Message::Ptr message) {breakOut(message); });
@@ -396,6 +400,30 @@ private:
         bot.getEvents().onCommand("startChat", [this](TgBot::Message::Ptr message) {startChat(message); });
         bot.getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {processMessage(message); });
 	}
+
+    #pragma endregion
+
+    #pragma region BotDesigner
+
+    TgBot::KeyboardButton::Ptr makeButton(const std::string& text) const
+    {
+        TgBot::KeyboardButton::Ptr res(new TgBot::KeyboardButton);
+        res->text = text;
+        return std::move(res);
+    }
+
+    void sendHelloWithKeyboard(TgBot::Message::Ptr message)
+    {
+        TgBot::ReplyKeyboardMarkup::Ptr kb(new TgBot::ReplyKeyboardMarkup);
+        kb->resizeKeyboard = true;
+        kb->oneTimeKeyboard = false;
+        kb->keyboard =
+        {
+            {makeButton("/renew"),makeButton("/online")},
+            {makeButton("/stopChat"),makeButton("/startChat"),makeButton("/break")}
+        };
+        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"), false, 0, kb);
+    }
 
     #pragma endregion
 
@@ -463,6 +491,5 @@ private:
     }
 
     #pragma endregion
-
 
 };
