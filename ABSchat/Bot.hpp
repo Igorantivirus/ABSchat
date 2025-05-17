@@ -318,8 +318,9 @@ private:
         {
             {"code_server", config.API_KEY},
             {"act", "breakOut"},
-            {"id", getUserIdFromServSafely(message->from->id)}
+            {"id", std::to_string(message->from->id)}
         };
+
         HttpClient http;
         std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
 
@@ -331,6 +332,7 @@ private:
         {
             result = to_utf8(L"Вы были успешно отвязаны от тг.");
             users.erase(std::to_string(message->from->id));
+            saver.saveToFile();
         }
         else
             result = to_utf8(L"Отвязка не прошла.");
@@ -360,15 +362,19 @@ private:
     {
         if (message->text.empty() || message->text[0] == '/')
             return;
-
+        std::cout << "size: " << message->text.size() << '\n';
         if (!registered(std::to_string(message->from->id)))
             bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
+        else if (chats.find(message->chat->id) == chats.end())
+            void();
+        else if(message->text.size() > 1000)
+            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Слишком длинное сообщение."));
         else
         {
-            sendMessageToServer(message->text, std::to_string(message->chat->id));
+            sendMessageToServer(message->text, std::to_string(message->from->id));
             std::string mes = '<' + message->from->username + "> " + message->text;
             std::regex_replace(mes, std::regex("\n"), " ");
-            sendMessageToAllTgExcept(mes/*, message->chat->id*/);
+            sendMessageToAllTgExcept(mes, message->chat->id);
         }
     }
 
@@ -420,6 +426,24 @@ private:
         if(type != "tg")
             sendMessageToAllTgExcept('<' + user + "> " + message);
     }
+    void deleteId(sio::event& ev)
+    {
+        sio::message::ptr data = ev.get_message();
+
+        if (data->get_flag() != sio::message::flag_object)
+        {
+            log.log("Get delete_id, but its not a object");
+            return;
+        }
+        auto obj = data->get_map();
+
+        auto idDelIt = obj.find("id_del");
+
+        std::string idDel = (idDelIt != obj.end() && idDelIt->second) ? idDelIt->second->get_string() : "???";
+
+        users.erase(idDel);
+        saver.saveToFile();
+    }
 
     void initListeningSock()
     {
@@ -427,6 +451,7 @@ private:
         client.set_fail_listener([this]() {connectFatal(); });
         client.set_close_listener([this](sio::client::close_reason const& reason) {connectClosed(reason); });
         client.socket()->on("message", [this](sio::event& ev) {onMessageResponse(ev); });
+        client.socket()->on("id_tg_delete", [this](sio::event& ev) {deleteId(ev); });
     }
 
     #pragma endregion

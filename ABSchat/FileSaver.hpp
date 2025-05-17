@@ -31,7 +31,7 @@ public:
 		chats.clear();
 
 		std::ifstream in(fileName);
-		if (!in.is_open())
+		if (!in.is_open() || in.eof())
 			return;
 
 		std::size_t prSize;

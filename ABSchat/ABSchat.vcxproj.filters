@@ -75,6 +75,5 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Log.txt" />
-    <Text Include="UsersInfo.txt" />
   </ItemGroup>
 </Project>
