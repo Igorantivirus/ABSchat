@@ -32,6 +32,11 @@ public:
         initListeningSock();
 
         connectWithServer();
+
+
+        for (const auto& i : users)
+            std::cout << i.first << ' ' << i.second << '\n';
+
     }
     ~Bot()
     {
@@ -218,8 +223,8 @@ private:
             bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
         else
         {
-            sendMessageToServer(message->text, users[std::to_string(message->chat->id)]);
-            std::string mes = '<' + message->from->username + '>' + message->text;
+            sendMessageToServer(message->text, std::to_string(message->chat->id));
+            std::string mes = '<' + message->from->username + "> " + message->text;
             sendMessageToAllTgExcept(mes/*, message->chat->id*/);
         }
     }
@@ -260,14 +265,14 @@ private:
         auto obj = data->get_map();
 
         auto userIt = obj.find("user");
-        auto messageIt = obj.find("message");
+        auto messageIt = obj.find("text");
         auto typeIt = obj.find("type");
 
         std::string user = (userIt != obj.end() && userIt->second) ? userIt->second->get_string() : "???";
         std::string message = (messageIt != obj.end() && messageIt->second) ? messageIt->second->get_string() : "";
         std::string type = (typeIt != obj.end() && typeIt->second) ? typeIt->second->get_string() : "";
-
-        sendMessageToAllTgExcept('<' + user + '>' + message);
+        if(type != "tg")
+            sendMessageToAllTgExcept('<' + user + "> " + message);
     }
 
     void initListeningSock()
