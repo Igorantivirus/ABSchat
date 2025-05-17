@@ -55,15 +55,21 @@ public:
         if (server_thread_.joinable()) { server_thread_.join(); }
     }
 
-    void mc_listener_run() {
-        while (running_) {
-            try {
+    void mc_listener_run()
+    {
+        while (running_)
+        {
+            try
+            {
                 boost::asio::ip::tcp::socket socket(io_context_);
                 acceptor_.accept(socket);
 
                 handleClient(std::move(socket));
-            } catch (const std::exception &e) {
-                if (running_) {
+            }
+            catch (const std::exception &e)
+            {
+                if (running_)
+                {
                     std::cerr << "Server error: " << e.what() << std::endl;
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                 }
@@ -71,46 +77,53 @@ public:
         }
     }
 
-    void handleClient(boost::asio::ip::tcp::socket socket) {
-        try {
+    void handleClient(boost::asio::ip::tcp::socket socket)
+    {
+        try
+        {
             uint32_t message_size = 0;
             boost::asio::read(socket, boost::asio::buffer(&message_size, sizeof(message_size)));
             std::vector<char> data(message_size);
             boost::asio::read(socket, boost::asio::buffer(data));
             std::string message(data.begin(), data.end());
             onMinecraftChatMessage(message);
-        } catch (const std::exception &e) { std::cerr << "Error handling client: " << e.what() << std::endl; }
+        }
+        catch (const std::exception &e)
+        {
+            log.log({ "Error handling client: ", e.what() });
+        }
     }
 
-    void parseMessage(const std::string& input, std::string& username, std::string& message) {
+    void parseMessage(const std::string& input, std::string& username, std::string& message)
+    {
         // Find the positions of < and >
         size_t openBracket = input.find('<');
         size_t closeBracket = input.find('>');
 
         // Extract username (without brackets)
-        if (openBracket != std::string::npos && closeBracket != std::string::npos && openBracket < closeBracket) {
+        if (openBracket != std::string::npos && closeBracket != std::string::npos && openBracket < closeBracket)
             username = input.substr(openBracket + 1, closeBracket - openBracket - 1);
-        } else {
+        else
             username = ""; // In case of invalid format
-        }
 
         // Extract message (skipping the colon and any spaces after it)
-        if (closeBracket != std::string::npos) {
+        if (closeBracket != std::string::npos)
+        {
             size_t messageStart = closeBracket + 1;
             // Skip any spaces after the colon
-            while (messageStart < input.length() && input[messageStart] == ' ') {
+            while (messageStart < input.length() && input[messageStart] == ' ')
                 messageStart++;
-            }
             message = input.substr(messageStart);
-        } else {
-            message = ""; // In case of invalid format
         }
+        else
+            message = ""; // In case of invalid format
     }
 
-    void onMinecraftChatMessage(const std::string& message) {
+    void onMinecraftChatMessage(const std::string& message)
+    {
         if (message.empty())
             return;
-        std::cout << "Message sent!!!" << std::endl;
+        log.log("Message sent!!!");
 
         auto msg = sio::object_message::create();
         std::string username, only_message;
