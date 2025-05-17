@@ -144,14 +144,19 @@
     <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_message.h" />
     <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_socket.h" />
     <ClInclude Include="Bot.hpp" />
+    <ClInclude Include="Config.hpp" />
     <ClInclude Include="FileSaver.hpp" />
     <ClInclude Include="HardCode.hpp" />
     <ClInclude Include="HTTPClient.hpp" />
-    <ClInclude Include="KEYS.hpp" />
     <ClInclude Include="LogOutput.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
+    <None Include="config.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Log.txt" />
+    <Text Include="UsersInfo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

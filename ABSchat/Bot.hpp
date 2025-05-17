@@ -4,6 +4,7 @@
 #include <set>
 #include <chrono>
 #include <thread>
+#include <regex>
 
 #include <tgbot/tgbot.h>
 #include <nlohmann/json.hpp>
@@ -15,7 +16,6 @@
 #include "HardCode.hpp"
 #include "FileSaver.hpp"
 #include "LogOutput.hpp"
-
 #include "Config.hpp"
 
 using RowJson = std::map<std::string, std::string>;
@@ -280,7 +280,8 @@ private:
         {
             sendMessageToServer(message->text, std::to_string(message->chat->id));
             std::string mes = '<' + message->from->username + "> " + message->text;
-            sendMessageToAllTgExcept(mes/*, message->chat->id*/);
+            std::regex_replace(mes, std::regex("\n"), " ");
+            sendMessageToAllTgExcept(mes, message->chat->id);
         }
     }
 

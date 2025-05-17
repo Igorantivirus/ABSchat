@@ -1,12 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include<iostream>
-
-#include <curl/curl.h>
-#include <tgbot/tgbot.h>
-#include <sio_client.h>
-#include <jwt-cpp/jwt.h>
-
 #include "Bot.hpp"
 
 int main()
