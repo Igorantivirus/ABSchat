@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Server LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(ASIO_USE_CPM "Download Asio with CPM instead of FetchContent" OFF)
@@ -13,25 +13,22 @@ option(
 )
 include(FetchContent)
 FetchContent_Declare(
-  asiocmake
-  GIT_REPOSITORY "https://github.com/OlivierLDff/asio.cmake"
-  GIT_TAG        "main"
-)
-include(FetchContent)
-FetchContent_Declare(
   jwt
   GIT_REPOSITORY "https://github.com/Thalhammer/jwt-cpp"
   GIT_TAG        "master"
 )
-FetchContent_MakeAvailable(asiocmake jwt)
+FetchContent_MakeAvailable(jwt)
 find_package(nlohmann_json REQUIRED)
 find_package(sioclient REQUIRED)
 find_package(CURL REQUIRED)
 
-add_executable(Server Bot.hpp HardCode.hpp main.cpp FileSaver.hpp HTTPClient.hpp)
+add_executable(Server Bot.hpp HardCode.hpp main.cpp FileSaver.hpp HTTPClient.hpp
+
+  Config.hpp
+)
 
 target_link_libraries(Server PRIVATE nlohmann_json)
-target_link_libraries(Server PRIVATE asio::asio jwt-cpp::jwt-cpp)
+target_link_libraries(Server PRIVATE jwt-cpp::jwt-cpp)
 target_link_libraries(Server PRIVATE sioclient)
 target_link_libraries(Server PRIVATE CURL::libcurl)
 # tgbot

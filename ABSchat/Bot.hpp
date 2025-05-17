@@ -4,6 +4,7 @@
 #include <set>
 #include <chrono>
 #include <thread>
+#include <regex>
 
 #include <tgbot/tgbot.h>
 #include <nlohmann/json.hpp>
@@ -79,18 +80,45 @@ public:
         } catch (const std::exception &e) { std::cerr << "Error handling client: " << e.what() << std::endl; }
     }
 
+    void parseMessage(const std::string& input, std::string& username, std::string& message) {
+        // Find the positions of < and >
+        size_t openBracket = input.find('<');
+        size_t closeBracket = input.find('>');
+
+        // Extract username (without brackets)
+        if (openBracket != std::string::npos && closeBracket != std::string::npos && openBracket < closeBracket) {
+            username = input.substr(openBracket + 1, closeBracket - openBracket - 1);
+        } else {
+            username = ""; // In case of invalid format
+        }
+
+        // Extract message (skipping the colon and any spaces after it)
+        if (closeBracket != std::string::npos) {
+            size_t messageStart = closeBracket + 1;
+            // Skip any spaces after the colon
+            while (messageStart < input.length() && input[messageStart] == ' ') {
+                messageStart++;
+            }
+            message = input.substr(messageStart);
+        } else {
+            message = ""; // In case of invalid format
+        }
+    }
+
     void onMinecraftChatMessage(const std::string& message) {
         if (message.empty())
             return;
         std::cout << "Message sent!!!" << std::endl;
 
         auto msg = sio::object_message::create();
-        msg->get_map()["user"] = sio::string_message::create("temp");
-        msg->get_map()["text"] = sio::string_message::create(message);
+        std::string username, only_message;
+        parseMessage(message, username, only_message);
+        msg->get_map()["user"] = sio::string_message::create(username);
+        msg->get_map()["message"] = sio::string_message::create(only_message);
         msg->get_map()["type"] = sio::string_message::create("mine");
-        msg->get_map()["id"] = sio::string_message::create("1642467431");
+        //msg->get_map()["id"] = sio::string_message::create("1642467431");
 
-        client.socket()->emit("message_tg", msg);
+        client.socket()->emit("message", msg);
     }
 
     void run()
