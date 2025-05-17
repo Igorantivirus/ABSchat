@@ -22,10 +22,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(sioclient REQUIRED)
 find_package(CURL REQUIRED)
 
-add_executable(Server Bot.hpp HardCode.hpp main.cpp FileSaver.hpp HTTPClient.hpp
-
-  Config.hpp
-)
+add_executable(Server Bot.hpp HardCode.hpp main.cpp FileSaver.hpp HTTPClient.hpp Config.hpp)
 
 target_link_libraries(Server PRIVATE nlohmann_json)
 target_link_libraries(Server PRIVATE jwt-cpp::jwt-cpp)
