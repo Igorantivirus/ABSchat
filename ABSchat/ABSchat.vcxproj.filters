@@ -59,17 +59,22 @@
     <ClInclude Include="HTTPClient.hpp">
       <Filter>BotHeaders</Filter>
     </ClInclude>
-    <ClInclude Include="KEYS.hpp">
-      <Filter>BotHeaders</Filter>
-    </ClInclude>
     <ClInclude Include="FileSaver.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="LogOutput.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Config.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
+    <None Include="config.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Log.txt" />
+    <Text Include="UsersInfo.txt" />
   </ItemGroup>
 </Project>
