@@ -12,9 +12,11 @@
 
 #include "HTTPClient.hpp"
 #include "HardCode.hpp"
+#include "FileSaver.hpp"
 
 #define URL_SERVER_BOT "http://beta.abserver.ru/bots_act/tg"
 #define API_KEY "o48c9qw0m4"
+#define FILE_TO_SAVE "UsersInfo.txt"
 
 using RowJson = std::map<std::string, std::string>;
 
@@ -22,12 +24,18 @@ class Bot
 {
 public:
     Bot(const std::string key) :
-        bot(key)
+        bot(key), saver{users, chats, FILE_TO_SAVE }
     {
+        saver.readFromFile();
+
         initResponsesTG();
         initListeningSock();
 
         //connectWithServer();
+    }
+    ~Bot()
+    {
+        saver.saveToFile();
     }
 
     void run()
@@ -61,6 +69,8 @@ private:
     //первое id - с тг, второе с сайта
     std::map<std::string, std::string> users;
     std::set<int64_t> chats;
+
+    FileSaver saver;
 
 private:
 
@@ -151,6 +161,7 @@ private:
         std::string servUserId = json["id"].dump();    //Добавление зарегестрированного пользователя
         chats.insert(message->chat->id);        //Добавление чата для отправки
         users[std::to_string(message->from->id)] = servUserId;
+        saver.saveToFile();
         bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"));
     }
     void renew(TgBot::Message::Ptr message)
