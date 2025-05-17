@@ -9,24 +9,29 @@
 #include <nlohmann/json.hpp>
 #include <sio_client.h>
 #include <jwt-cpp/jwt.h>
+#include <boost/asio.hpp>
 
 #include "HTTPClient.hpp"
 #include "HardCode.hpp"
 #include "FileSaver.hpp"
 #include "LogOutput.hpp"
 
-#define URL_SERVER_BOT "http://beta.abserver.ru/bots_act/tg"
-#define API_KEY "o48c9qw0m4"
-#define FILE_TO_SAVE "UsersInfo.txt"
-#define LOG_FILE "Log.txt"
+#include "Config.hpp"
 
 using RowJson = std::map<std::string, std::string>;
 
 class Bot
 {
+    Config config;
+
+    boost::asio::io_context io_context_;
+    boost::asio::ip::tcp::acceptor acceptor_;
+    std::mutex file_mutex_;
+    bool running_ = true;
+    std::thread server_thread_;
 public:
-    Bot(const std::string key) :
-        bot(key), saver{ users, chats, FILE_TO_SAVE }, log{ LOG_FILE, true}
+    Bot(const std::string configPath) :
+                               config(loadConfig(configPath)), bot(config.TG_BOT_KEY), saver{ users, chats, config.FILE_TO_SAVE }, log{ config.LOG_FILE, true}, acceptor_(io_context_, boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(config.minecraft_server_ip), config.minecraft_server_port))
     {
         saver.readFromFile();
 
@@ -34,10 +39,58 @@ public:
         initListeningSock();
 
         connectWithServer();
+
+        server_thread_ = std::thread([this]() { this->mc_listener_run(); });
     }
     ~Bot()
     {
         saver.saveToFile();
+
+        // Signal thread to stop and wait for it
+        running_ = false;
+        io_context_.stop();
+        if (server_thread_.joinable()) { server_thread_.join(); }
+    }
+
+    void mc_listener_run() {
+        while (running_) {
+            try {
+                boost::asio::ip::tcp::socket socket(io_context_);
+                acceptor_.accept(socket);
+
+                handleClient(std::move(socket));
+            } catch (const std::exception &e) {
+                if (running_) {
+                    std::cerr << "Server error: " << e.what() << std::endl;
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
+            }
+        }
+    }
+
+    void handleClient(boost::asio::ip::tcp::socket socket) {
+        try {
+            uint32_t message_size = 0;
+            boost::asio::read(socket, boost::asio::buffer(&message_size, sizeof(message_size)));
+            std::vector<char> data(message_size);
+            boost::asio::read(socket, boost::asio::buffer(data));
+            std::string message(data.begin(), data.end());
+            onMinecraftChatMessage(message);
+        } catch (const std::exception &e) { std::cerr << "Error handling client: " << e.what() << std::endl; }
+    }
+
+    void onMinecraftChatMessage(const std::string& message) {
+        if (message.empty())
+            return;
+        std::cout << "Message sent!!!" << std::endl;
+
+        auto msg = sio::object_message::create();
+        msg->get_map()["user"] = sio::string_message::create("temp");
+        msg->get_map()["text"] = sio::string_message::create(message);
+        msg->get_map()["type"] = sio::string_message::create("mine");
+        msg->get_map()["id"] = sio::string_message::create("1642467431");
+
+        client.socket()->emit("message_tg", msg);
     }
 
     void run()
@@ -110,7 +163,7 @@ private:
         std::string token = jwt::create()
             .set_payload_claim("connect_by", jwt::claim(std::string("tg")))
             .set_payload_claim("api_pass", jwt::claim(std::string("o48c9qw0m4")))
-            .sign(jwt::algorithm::hs256{ SUPER_SECRET_KEY });
+            .sign(jwt::algorithm::hs256{ config.SUPER_SECRET_KEY });
 
         std::map<std::string, std::string> query;
         query["token"] = token;
@@ -156,7 +209,7 @@ private:
             {"id_tg", std::to_string(message->from->id)},
         };
         HttpClient http;
-        std::string responce = http.getRequastParam(URL_SERVER_BOT, param);
+        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
 
         nlohmann::json json = nlohmann::json::parse(responce);
 
@@ -177,11 +230,11 @@ private:
         RowJson param =
         {
             {"code_server", "o48c9qw0m4"},
-            {"act", API_KEY},
+            {"act", config.API_KEY},
             {"id", getUserIdFromServSafely(message->from->id)}
         };
         HttpClient http;
-        std::string responce = http.getRequastParam(URL_SERVER_BOT, param);
+        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
 
         nlohmann::json json = nlohmann::json::parse(responce);
         std::string result;
@@ -200,12 +253,12 @@ private:
     void online(TgBot::Message::Ptr message)
     {
         RowJson param = {
-            {"code_server", API_KEY},
+            {"code_server", config.API_KEY},
             {"act", "online"},
             {"id", getUserIdFromServSafely(message->from->id)}
         };
         HttpClient http;
-        std::string responce = http.getRequastParam(URL_SERVER_BOT, param);
+        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
 
         nlohmann::json json = nlohmann::json::parse(responce);
         std::string result;

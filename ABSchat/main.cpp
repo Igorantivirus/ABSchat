@@ -5,9 +5,8 @@
 #include <curl/curl.h>
 #include <tgbot/tgbot.h>
 #include <sio_client.h>
-#include <jwt-cpp/jwt.h> 
+#include <jwt-cpp/jwt.h>
 
-#include "KEYS.hpp"
 #include "Bot.hpp"
 
 int main()
@@ -16,7 +15,7 @@ int main()
 	system("chcp 65001 > nul");
 #endif // __WIN__
 
-	Bot bot(TG_BOT_KEY);
+    Bot bot("config.json");
 
 	bot.run();
 
