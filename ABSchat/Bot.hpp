@@ -31,7 +31,7 @@ public:
         initResponsesTG();
         initListeningSock();
 
-        //connectWithServer();
+        connectWithServer();
     }
     ~Bot()
     {
@@ -46,8 +46,8 @@ public:
             TgBot::TgLongPoll longPoll(bot);
             while (true)
             {
-                /*if (!client.opened())
-                    reconectTry();*/
+                if (!client.opened())
+                    reconectTry();
                 std::cout << "Long poll started" << '\n';
                 longPoll.start();
             }
@@ -97,7 +97,8 @@ private:
     //подключение к серверу
     void connectWithServer()
     {
-        std::string url = "https://beta/abserver.ru";
+        std::cout << to_utf8(L"Попытка коннекта\n");
+        std::string url = "http://beta.abserver.ru:5050";
 
         std::string token = jwt::create()
             .set_payload_claim("connect_by", jwt::claim(std::string("tg")))
@@ -106,7 +107,7 @@ private:
 
         std::map<std::string, std::string> query;
         query["token"] = token;
-        client.connect("http://beta.abserver.ru", query);
+        client.connect(url, query);
     }
 
     //проверка что пользователь зареган (idTg)
@@ -125,7 +126,7 @@ private:
         msg->get_map()["message"] = sio::string_message::create(messageToServer);
         msg->get_map()["id"] = sio::string_message::create(userIds);
 
-        client.socket()->emit("message_tg", sio::string_message::create(messageToServer));
+        client.socket()->emit("message_tg", msg);
     }
 
     void sendMessageToAllTgExcept(const std::string& message, const std::int64_t exceptIdTg = 0)
