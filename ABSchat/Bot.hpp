@@ -17,6 +17,9 @@ public:
         bot(key)
     {
         initResponsesTG();
+        initListeningSock();
+
+        connectWithServer();
     }
 
     void Run()
@@ -27,6 +30,11 @@ public:
             TgBot::TgLongPoll longPoll(bot);
             while (true)
             {
+                if (!client.opened())
+                {
+                    std::cout << "Connection faled";
+                    break;
+                }
                 std::cout << "Long poll started" << '\n';
                 longPoll.start();
             }
@@ -44,12 +52,25 @@ public:
 private:
 
 	TgBot::Bot bot;
+    sio::client client;
     //первое id - с тг, второе с сайта
     std::map<std::string, std::string> users;
 
-    
-
 private:
+
+    void connectWithServer()
+    {
+        std::string url = "https://beta/abserver.ru";
+
+        std::string token = jwt::create()
+            .set_payload_claim("connect_by", jwt::claim(std::string("tg")))
+            .set_payload_claim("api_pass", jwt::claim(std::string("o48c9qw0m4")))
+            .sign(jwt::algorithm::hs256{ SUPER_SECRET_KEY });
+
+        std::map<std::string, std::string> query;
+        query["token"] = token;
+        client.connect("http://beta.abserver.ru", query);
+    }
 
     std::string getRequest(const std::string& authCode, std::string userId)
     {
@@ -131,6 +152,40 @@ private:
 
 	}
 
-    
+    void initListeningSock()
+    {
+        client.set_open_listener([&]()
+            {
+                std::cout << "Connect sucsess" << std::endl;
+            });
+
+        client.set_fail_listener([&]() {
+            std::cout << "Error of connect" << std::endl;
+            });
+
+        client.set_close_listener([](sio::client::close_reason const& reason) {
+            std::cout << "Connect closed. Reaon: " << static_cast<int>(reason) << std::endl;
+            });
+
+        client.socket()->on("message", [](sio::event& ev)
+            {
+                /*sio::message::ptr data = ev.get_message();
+
+                if (data->get_flag() == sio::message::flag_object) {
+                    auto obj = data->get_map();
+
+                    auto userIt = obj.find("user");
+                    auto textIt = obj.find("text");
+
+                    std::string user = (userIt != obj.end() && userIt->second) ? userIt->second->get_string() : "???";
+                    std::string text = (textIt != obj.end() && textIt->second) ? textIt->second->get_string() : "";
+
+                    std::cout << "[" << user << "] " << text << std::endl;
+                }
+                else {
+                    std::cout << "Get message, but its not a object" << std::endl;
+                }*/
+            });
+    }
 
 };
