@@ -29,6 +29,9 @@ class Bot
     std::mutex file_mutex_;
     bool running_ = true;
     std::thread server_thread_;
+
+
+
 public:
     Bot(const std::string configPath) :
                                config(loadConfig(configPath)), bot(config.TG_BOT_KEY), saver{ users, chats, config.FILE_TO_SAVE }, log{ config.LOG_FILE, true}, acceptor_(io_context_, boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(config.minecraft_server_ip), config.minecraft_server_port))
@@ -282,7 +285,7 @@ private:
         RowJson param = {
             {"code_server", config.API_KEY},
             {"act", "online"},
-            {"id", getUserIdFromServSafely(message->from->id)}
+            {"id", getUserIdFromServSafely(message->from->id)}//Даю id чата
         };
         HttpClient http;
         std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
@@ -296,6 +299,50 @@ private:
 
         bot.getApi().sendMessage(message->chat->id, result);
     }
+    void breakOut(TgBot::Message::Ptr message)
+    {
+        RowJson param =
+        {
+            {"code_server", config.API_KEY},
+            {"act", "breakOut"},
+            {"id", getUserIdFromServSafely(message->from->id)}
+        };
+        HttpClient http;
+        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
+
+        nlohmann::json json = nlohmann::json::parse(responce);
+        std::string result;
+        if (json["code"].empty())
+            result = to_utf8(L"Ошибка обращения к серверу.");
+        else if (json["code"] == "true")
+        {
+            result = to_utf8(L"Вы были успешно отвязаны от тг.");
+            users.erase(std::to_string(message->from->id));
+        }
+        else
+            result = to_utf8(L"Отвязка не прошла.");
+
+        bot.getApi().sendMessage(message->chat->id, result);
+    }
+    void stopChat(TgBot::Message::Ptr message)
+    {
+        if (!registered(std::to_string(message->from->id)))
+            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Вы не участник чата. Команда не будет выполнена."));
+        {
+            chats.erase(message->chat->id);
+            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Мы больше не будем засорять ваш чат."));
+        }
+    }
+    void startChat(TgBot::Message::Ptr message)
+    {
+        if (!registered(std::to_string(message->from->id)))
+            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Вы не участник сервера - мы не можем работать с вашим чатом."));
+        else
+        {
+            chats.insert(message->chat->id);
+            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Теперь мы будем засорять ваш чат."));
+        }
+    }
     void processMessage(TgBot::Message::Ptr message)
     {
         if (message->text.empty() || message->text[0] == '/')
@@ -308,7 +355,7 @@ private:
             sendMessageToServer(message->text, std::to_string(message->chat->id));
             std::string mes = '<' + message->from->username + "> " + message->text;
             std::regex_replace(mes, std::regex("\n"), " ");
-            sendMessageToAllTgExcept(mes, message->chat->id);
+            sendMessageToAllTgExcept(mes/*, message->chat->id*/);
         }
     }
 
@@ -317,6 +364,9 @@ private:
         bot.getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {start(message); });
         bot.getEvents().onCommand("renew", [this](TgBot::Message::Ptr message) {renew(message); });
         bot.getEvents().onCommand("online", [this](TgBot::Message::Ptr message) {online(message); });
+        bot.getEvents().onCommand("break", [this](TgBot::Message::Ptr message) {breakOut(message); });
+        bot.getEvents().onCommand("stopChat", [this](TgBot::Message::Ptr message) {stopChat(message); });
+        bot.getEvents().onCommand("startChat", [this](TgBot::Message::Ptr message) {startChat(message); });
         bot.getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {processMessage(message); });
 	}
 
