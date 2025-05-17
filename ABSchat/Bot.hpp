@@ -13,10 +13,12 @@
 #include "HTTPClient.hpp"
 #include "HardCode.hpp"
 #include "FileSaver.hpp"
+#include "LogOutput.hpp"
 
 #define URL_SERVER_BOT "http://beta.abserver.ru/bots_act/tg"
 #define API_KEY "o48c9qw0m4"
 #define FILE_TO_SAVE "UsersInfo.txt"
+#define LOG_FILE "Log.txt"
 
 using RowJson = std::map<std::string, std::string>;
 
@@ -24,7 +26,7 @@ class Bot
 {
 public:
     Bot(const std::string key) :
-        bot(key), saver{users, chats, FILE_TO_SAVE }
+        bot(key), saver{ users, chats, FILE_TO_SAVE }, log{ LOG_FILE, true}
     {
         saver.readFromFile();
 
@@ -32,11 +34,6 @@ public:
         initListeningSock();
 
         connectWithServer();
-
-
-        for (const auto& i : users)
-            std::cout << i.first << ' ' << i.second << '\n';
-
     }
     ~Bot()
     {
@@ -47,26 +44,30 @@ public:
     {
         try
         {
-            std::cout << "Bot username: " << bot.getApi().getMe()->username.c_str() << '\n';
+            log.log({ "Bot started. Username: ", bot.getApi().getMe()->username.c_str() });
             TgBot::TgLongPoll longPoll(bot);
             while (true)
             {
                 if (!client.opened())
                     reconectTry();
-                std::cout << "Long poll started" << '\n';
+                log.log("Long poll started");
                 longPoll.start();
             }
         }
         catch (const TgBot::TgException& e)
         {
-            std::cout << "Bot error: " << e.what() << '\n';
+            log.log({ "Bot error: ",e.what() });
+        }
+        catch (const std::exception& e)
+        {
+            log.log({ "Std error: ",e.what() });
         }
         catch (...)
         {
-            std::cout << "Unknown Error" << '\n';
+            log.log("Unknown Error");
         }
     }
-
+    
 private:
 
 	TgBot::Bot bot;
@@ -76,6 +77,7 @@ private:
     std::set<int64_t> chats;
 
     FileSaver saver;
+    LogOutput log;
 
 private:
 
@@ -90,10 +92,10 @@ private:
 
     void reconectTry()
     {
+        log.log("Connectfailed, next try to reconnecd");
         std::chrono::milliseconds timespan(5000); // 1 second
         while (!client.opened())
         {
-            std::cout << "Try to connect ";
             connectWithServer();
             std::this_thread::sleep_for(timespan);
         }
@@ -102,7 +104,7 @@ private:
     //подключение к серверу
     void connectWithServer()
     {
-        std::cout << to_utf8(L"Попытка коннекта\n");
+        log.log("Connect try");
         std::string url = "http://beta.abserver.ru:5050";
 
         std::string token = jwt::create()
@@ -243,15 +245,15 @@ private:
 
     void connectSuccess()
     {
-        std::cout << "Connect sucsess" << std::endl;
+        log.log("Connect sucsess");
     }
     void connectFatal()
     {
-        std::cout << "Connect fatal" << std::endl;
+        log.log("Connect fatal");
     }
     void connectClosed(sio::client::close_reason const& reason)
     {
-        std::cout << "Connect closed. Reaon: " << static_cast<int>(reason) << std::endl;
+        log.log("Connect closed. Reaon: ", static_cast<int>(reason));
     }
     void onMessageResponse(sio::event& ev)
     {
@@ -259,7 +261,7 @@ private:
 
         if (data->get_flag() != sio::message::flag_object)
         {
-            std::cout << "Get message, but its not a object" << std::endl;
+            log.log("Get message, but its not a object");
             return;
         }
         auto obj = data->get_map();
