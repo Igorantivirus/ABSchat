@@ -123,16 +123,15 @@ private:
     void connectWithServer()
     {
         log.log("Connect try");
-        std::string url = "http://beta.abserver.ru:5050";
 
         std::string token = jwt::create()
             .set_payload_claim("connect_by", jwt::claim(std::string("tg")))
-            .set_payload_claim("api_pass", jwt::claim(std::string("o48c9qw0m4")))
+            .set_payload_claim("api_pass", jwt::claim(config.API_KEY))
             .sign(jwt::algorithm::hs256{ config.SUPER_SECRET_KEY });
 
         std::map<std::string, std::string> query;
         query["token"] = token;
-        client.connect(url, query);
+        client.connect(config.url_to_connect, query);
     }
 
     //проверка что пользователь зареган (idTg)
@@ -163,7 +162,7 @@ private:
         std::string pr = message->text;
         RowJson param =
         {
-            {"code_server", "o48c9qw0m4"},
+            {"code_server", config.API_KEY},
             {"act", "reg"},
             {"code", eraseBeforeForstSpace(message->text)},
             {"id_tg", std::to_string(message->from->id)},
@@ -190,8 +189,8 @@ private:
     {
         RowJson param =
         {
-            {"code_server", "o48c9qw0m4"},
-            {"act", config.API_KEY},
+            {"code_server", config.API_KEY},
+            {"act", "renew"},
             {"id", getUserIdFromServSafely(message->from->id)}
         };
         HttpClient http;
@@ -291,9 +290,13 @@ private:
     }
     void processMessage(TgBot::Message::Ptr message)
     {
-        if(message->voice)
+        if (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message))
+            return;
+        if (!registered(std::to_string(message->from->id)))
+            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
+        else if(message->voice)
         {
-            std::cout << "VOICE!!! " << std::endl;
+            log.log("VOICE!!!");
             auto file = bot.getApi().getFile(message->voice->fileId);
             std::string downloadLink = "https://api.telegram.org/file/bot" + config.TG_BOT_KEY + "/" + file->filePath;
 
@@ -304,10 +307,6 @@ private:
 
             client.socket()->emit("voice_message", msg);
         }
-        if (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message))
-            return;
-        if (!registered(std::to_string(message->from->id)))
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
         else if (chats.find(message->chat->id) == chats.end())
             void();
         else if(message->text.size() > 1000)
@@ -393,9 +392,9 @@ private:
         std::string user = (userIt != obj.end() && userIt->second) ? userIt->second->get_string() : "???";
         std::string message = (messageIt != obj.end() && messageIt->second) ? messageIt->second->get_string() : "";
         std::string type = (typeIt != obj.end() && typeIt->second) ? typeIt->second->get_string() : "";
-        if(type == "mine") {
-
-        }
+        //if(type == "mine")
+        //{
+        //}
         if(type != "tg")
             sendMessageToAllTgExcept('<' + user + "> " + message);
     }

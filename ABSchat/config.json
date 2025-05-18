@@ -1,6 +1,6 @@
 {
   "LOG_TXT": "Log.txt",
-  "URL_SERVER_BOT": "http://abserver.ru/bots_act/tg",
+  "URL_SERVER_BOT": "https://abserver.ru/bots_act/tg",
   "API_KEY": "o48c9qw0m4",
   "FILE_TO_SAVE": "UsersInfo.txt",
   "TG_BOT_KEY": "6928361979:AAG4-B4eEcfwDcxcuYY6mgMqpTRjtT2f1Q8",
@@ -8,5 +8,6 @@
   "SUPER_SECRET_KEY": "o9uazz9iwjxr0l7xp8xx52ikwpzcmca864uwqzyw9lqbqgl516vkgkium0kxbyturtm9gw6dgc6w78tptjduutw7eq6u7jxkfy5e",
   "logs_path": "/root/server/logs/latest.log",
   "minecraft_server_ip": "127.0.0.1",
-  "minecraft_server_port": 1313
+  "minecraft_server_port": 1313,
+  "url_to_connect": "http://abserver.ru:5050"
 }

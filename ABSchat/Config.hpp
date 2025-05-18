@@ -19,7 +19,8 @@ struct Config
     std::string logs_path;
     std::string minecraft_server_ip;
     int minecraft_server_port{};
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Config, LOG_FILE, URL_SERVER_BOT, API_KEY, FILE_TO_SAVE, TG_BOT_KEY, SECRET_API_KEY, SUPER_SECRET_KEY, logs_path, minecraft_server_ip, minecraft_server_port)
+    std::string url_to_connect;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Config, LOG_FILE, URL_SERVER_BOT, API_KEY, FILE_TO_SAVE, TG_BOT_KEY, SECRET_API_KEY, SUPER_SECRET_KEY, logs_path, minecraft_server_ip, minecraft_server_port, url_to_connect)
 };
 
 inline Config loadConfig(const std::string &config_path)
