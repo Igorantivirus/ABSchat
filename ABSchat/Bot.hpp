@@ -183,7 +183,8 @@ private:
         chats.insert(message->chat->id);        //Добавление чата для отправки
         users[std::to_string(message->from->id)] = servUserId;
         saver.saveToFile();
-        sendHelloWithKeyboard(message);
+        sendKeyboard(message);
+        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Авторизация успешна!"));
     }
     void renew(TgBot::Message::Ptr message)
     {
@@ -275,6 +276,19 @@ private:
             bot.getApi().sendMessage(message->chat->id, to_utf8(L"Теперь мы будем засорять ваш чат."));
         }
     }
+    void help(TgBot::Message::Ptr message)
+    {
+        std::string responce = to_utf8(LR"(Добро пожаловать в бота сервера ABSserver.
+Список команд:
+/help       - вы сейчас её используете
+/online     - проверка онлайна сервера
+/renew      - продлить сервер на час
+/stopChat   - остановить тправку сообщений в этот чат
+/startChat  - возобновить отправку сообщений в этот чат
+/keyboard   - вывод клавиатуры, если возникли проблемы с ней
+/break      - отвязать аккаунт от телеграмма)");
+        bot.getApi().sendMessage(message->chat->id, responce);
+    }
     void processMessage(TgBot::Message::Ptr message)
     {
         if (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message))
@@ -302,6 +316,8 @@ private:
         bot.getEvents().onCommand("break", [this](TgBot::Message::Ptr message) {breakOut(message); });
         bot.getEvents().onCommand("stopChat", [this](TgBot::Message::Ptr message) {stopChat(message); });
         bot.getEvents().onCommand("startChat", [this](TgBot::Message::Ptr message) {startChat(message); });
+        bot.getEvents().onCommand("keyboard", [this](TgBot::Message::Ptr message) {sendKeyboard(message); });
+        bot.getEvents().onCommand("help", [this](TgBot::Message::Ptr message) {help(message); });
         bot.getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {processMessage(message); });
 	}
 
@@ -316,17 +332,18 @@ private:
         return std::move(res);
     }
 
-    void sendHelloWithKeyboard(TgBot::Message::Ptr message)
+    void sendKeyboard(TgBot::Message::Ptr message)
     {
         TgBot::ReplyKeyboardMarkup::Ptr kb(new TgBot::ReplyKeyboardMarkup);
         kb->resizeKeyboard = true;
         kb->oneTimeKeyboard = false;
         kb->keyboard =
         {
-            {makeButton("/renew"),makeButton("/online")},
-            {makeButton("/stopChat"),makeButton("/startChat"),makeButton("/break")}
+            {makeButton("/renew"),makeButton("/online"), makeButton("/help")},
+            {makeButton("/stopChat"),makeButton("/startChat")},
+            {makeButton("/break"),makeButton("/keyboard")}
         };
-        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Успешная регистрация пользователя!"), false, 0, kb);
+        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Добро пожаловать в ABSchat."), false, 0, kb);
     }
 
     #pragma endregion
