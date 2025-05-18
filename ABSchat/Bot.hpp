@@ -291,7 +291,8 @@ private:
     }
     void processMessage(TgBot::Message::Ptr message)
     {
-        if(message->voice) {
+        if(message->voice)
+        {
             std::cout << "VOICE!!! " << std::endl;
             auto file = bot.getApi().getFile(message->voice->fileId);
             std::string downloadLink = "https://api.telegram.org/file/bot" + config.TG_BOT_KEY + "/" + file->filePath;
