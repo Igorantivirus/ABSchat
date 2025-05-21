@@ -290,7 +290,7 @@ private:
     }
     void processMessage(TgBot::Message::Ptr message)
     {
-        if (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message))
+        if (!message->voice && (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message)))
             return;
         if (!registered(std::to_string(message->from->id)))
             bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
