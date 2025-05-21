@@ -355,7 +355,7 @@ private:
             {makeButton("/stopChat"),makeButton("/startChat")},
             {makeButton("/break"),makeButton("/keyboard")}
         };
-        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Добро пожаловать в ABSchat."), false, 0, kb);
+        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Добро пожаловать в ABSchat."), nullptr, 0, kb);
     }
 
     #pragma endregion
