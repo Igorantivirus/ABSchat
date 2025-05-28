@@ -149,7 +149,6 @@
     <ClInclude Include="HardCode.hpp" />
     <ClInclude Include="HTTPClient.hpp" />
     <ClInclude Include="LogOutput.hpp" />
-    <ClInclude Include="ServerClient.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
