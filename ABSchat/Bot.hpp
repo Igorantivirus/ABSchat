@@ -157,6 +157,11 @@ private:
 
     #pragma region botResponser
 
+    void sendMessage(const std::string& str, TgBot::Message::Ptr message)
+    {
+
+    }
+
     void start(TgBot::Message::Ptr message)
     {
         std::string pr = message->text;
@@ -290,11 +295,13 @@ private:
     }
     void processMessage(TgBot::Message::Ptr message)
     {
-        if (!message->voice && (message->text.empty() || message->text[0] == '/' || notGeneralInSuperGroup(message)))
+        if (!message->text.empty() && message->text[0] == '/')
             return;
         if (!registered(std::to_string(message->from->id)))
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
-        else if(message->voice)
+            return bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!")), void();
+        if (notGeneralInSuperGroup(message))
+            return;
+        if (message->voice)
         {
             log.log("VOICE!!!");
             auto file = bot.getApi().getFile(message->voice->fileId);
@@ -308,7 +315,7 @@ private:
             client.socket()->emit("voice_message", msg);
         }
         else if (chats.find(message->chat->id) == chats.end())
-            void();
+            return;
         else if(message->text.size() > 1000)
             bot.getApi().sendMessage(message->chat->id, to_utf8(L"Слишком длинное сообщение."));
         else
