@@ -363,3 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 KEYS.hpp
+
+# Данные юзеров
+config.json
+UsersInfo.txt
