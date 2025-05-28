@@ -28,7 +28,7 @@ public:
     Bot(const std::string configPath) : config(loadConfig(configPath)), bot(config.TG_BOT_KEY), saver{ users, chats, config.FILE_TO_SAVE }, log{ config.LOG_FILE, true }
     {
         saver.readFromFile();
-        
+
         initKeyboard();
         initResponsesTG();
         initListeningSock();
@@ -67,10 +67,10 @@ public:
             log.log("Unknown Error");
         }
     }
-    
+
 private:
 
-	TgBot::Bot bot;
+    TgBot::Bot bot;
     TgBot::ReplyKeyboardMarkup::Ptr keyboard;
 
     sio::client client;
@@ -92,11 +92,16 @@ private:
         return found->second;
     }
 
+    void sendMessage(const int64_t chatId, const std::string& message)
+    {
+        bot.getApi().sendMessage(chatId, message, false, 0, keyboard);
+    }
+
     void sendMessageToAllTgExcept(const std::string& message, const std::int64_t exceptIdTg = 0)
     {
         for (const auto& chatId : chats)
             if(chatId != exceptIdTg)
-                bot.getApi().sendMessage(chatId, message, false, 0, keyboard);
+                sendMessage(chatId, message);
     }
 
     //проверка, что чат - сообщество и не general
@@ -176,7 +181,7 @@ private:
 
         if (json["code"] != "true")
         {
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Не удалось харегестрироваться."), false, 0, keyboard);
+            sendMessage(message->chat->id, to_utf8(L"Не удалось харегестрироваться."));
             return;
         }
 
@@ -184,7 +189,7 @@ private:
         chats.insert(message->chat->id);        //Добавление чата для отправки
         users[std::to_string(message->from->id)] = servUserId;
         saver.saveToFile();
-        bot.getApi().sendMessage(message->chat->id, to_utf8(L"Авторизация успешна!"), false, 0, keyboard);
+        sendMessage(message->chat->id, to_utf8(L"Авторизация успешна!"));
     }
     void renew(TgBot::Message::Ptr message)
     {
@@ -209,7 +214,7 @@ private:
             result = to_utf8(L"Сервер уже работает! Проверьте состояние сервера");
         else
             result = to_utf8(L"Сервер не был продлён.");
-        bot.getApi().sendMessage(message->chat->id, result, false, 0, keyboard);
+        sendMessage(message->chat->id, result);
     }
     void online(TgBot::Message::Ptr message)
     {
@@ -228,7 +233,7 @@ private:
         else
             result = to_utf8(L"Ошибка просмотра онлайна.");
 
-        bot.getApi().sendMessage(message->chat->id, result, false, 0, keyboard);
+        sendMessage(message->chat->id, result);
     }
     void breakOut(TgBot::Message::Ptr message)
     {
@@ -255,16 +260,16 @@ private:
         else
             result = to_utf8(L"Отвязка не прошла.");
 
-        bot.getApi().sendMessage(message->chat->id, result, false, 0, keyboard);
+        sendMessage(message->chat->id, result);
     }
     void stopChat(TgBot::Message::Ptr message)
     {
         if (!registered(std::to_string(message->from->id)))
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Вы не участник чата. Команда не будет выполнена."), false, 0, keyboard);
+            sendMessage(message->chat->id, to_utf8(L"Вы не участник чата. Команда не будет выполнена."));
         else
         {
             chats.erase(message->chat->id);
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Мы больше не будем засорять ваш чат."), false, 0, keyboard);
+            sendMessage(message->chat->id, to_utf8(L"Мы больше не будем засорять ваш чат."));
         }
     }
     void startChat(TgBot::Message::Ptr message)
@@ -274,7 +279,7 @@ private:
         else
         {
             chats.insert(message->chat->id);
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Теперь мы будем засорять ваш чат."), false, 0, keyboard);
+            sendMessage(message->chat->id, to_utf8(L"Теперь мы будем засорять ваш чат."));
         }
     }
     void help(TgBot::Message::Ptr message)
@@ -288,14 +293,14 @@ private:
 /startChat  - возобновить отправку сообщений в этот чат
 /keyboard   - вывод клавиатуры, если возникли проблемы с ней
 /break      - отвязать аккаунт от телеграмма)");
-        bot.getApi().sendMessage(message->chat->id, responce, false, 0, keyboard);
+        sendMessage(message->chat->id, responce);
     }
     void processMessage(TgBot::Message::Ptr message)
     {
         if (!message->text.empty() && message->text[0] == '/')
             return;
         if (!registered(std::to_string(message->from->id)))
-            return bot.getApi().sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"), false, 0, keyboard), void();
+            return sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
         if (notGeneralInSuperGroup(message))
             return;
         if (message->voice)
@@ -314,7 +319,7 @@ private:
         else if (chats.find(message->chat->id) == chats.end())
             return;
         else if(message->text.size() > 1000)
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Слишком длинное сообщение."), false, 0, keyboard);
+            sendMessage(message->chat->id, to_utf8(L"Слишком длинное сообщение."));
         else
         {
             sendMessageToServer(message->text, std::to_string(message->from->id));
