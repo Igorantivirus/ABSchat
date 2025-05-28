@@ -94,7 +94,7 @@ private:
 
     void sendMessage(const int64_t chatId, const std::string& message)
     {
-        bot.getApi().sendMessage(chatId, message, false, 0, keyboard);
+        bot.getApi().sendMessage(chatId, message, nullptr, 0, keyboard);
     }
 
     void sendMessageToAllTgExcept(const std::string& message, const std::int64_t exceptIdTg = 0)
@@ -275,7 +275,7 @@ private:
     void startChat(TgBot::Message::Ptr message)
     {
         if (!registered(std::to_string(message->from->id)))
-            bot.getApi().sendMessage(message->chat->id, to_utf8(L"Вы не участник сервера - мы не можем работать с вашим чатом."), false, 0, keyboard);
+            sendMessage(message->chat->id, to_utf8(L"Вы не участник сервера - мы не можем работать с вашим чатом."));
         else
         {
             chats.insert(message->chat->id);
