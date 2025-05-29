@@ -16,6 +16,9 @@
     <Filter Include="BotHeaders">
       <UniqueIdentifier>{7dbe06b8-00fd-44c2-a343-9b8248393abf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SubHeaders">
+      <UniqueIdentifier>{c4f1c3b1-7b44-461f-ab35-9513f6f3884d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -58,6 +61,18 @@
     </ClInclude>
     <ClInclude Include="CommandMeneger.hpp">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientSubscriber.hpp">
+      <Filter>SubHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientBrocker.hpp">
+      <Filter>SubHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="TgBotSubscriber.hpp">
+      <Filter>SubHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="WebSocketSubscriber.hpp">
+      <Filter>SubHeaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

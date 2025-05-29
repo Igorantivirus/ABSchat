@@ -139,13 +139,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bot.hpp" />
+    <ClInclude Include="ClientBrocker.hpp" />
+    <ClInclude Include="ClientSubscriber.hpp" />
     <ClInclude Include="CommandMeneger.hpp" />
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="HardCode.hpp" />
     <ClInclude Include="HTTPClient.hpp" />
     <ClInclude Include="LogOutput.hpp" />
     <ClInclude Include="Service.hpp" />
+    <ClInclude Include="TgBotSubscriber.hpp" />
     <ClInclude Include="UserStorage.hpp" />
+    <ClInclude Include="WebSocketSubscriber.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />

@@ -9,7 +9,7 @@ class HttpClient
 {
 public:
 
-    std::string getRequastParam(const std::string& url, const std::map<std::string, std::string>& json)
+    std::string getRequastParam(const std::string& url, const std::map<std::string, std::string>& json) const
     {
         std::string nortmUrl = url + '?';
         for (const auto& [key, value] : json)
@@ -18,7 +18,7 @@ public:
         return getRequest(nortmUrl);
     }
 
-    std::string getRequest(const std::string& url)
+    std::string getRequest(const std::string& url) const
     {
         CURL* curl;
         CURLcode res;

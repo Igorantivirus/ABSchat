@@ -102,7 +102,7 @@ public:
 		storage_.users.erase(tgId);
 		saver_.saveStorageToFile(storage_);
 	}
-	bool isUserRegistered(const int64_t tgId)
+	bool isUserRegistered(const int64_t tgId) const
 	{
 		auto found = storage_.users.find(tgId);
 		return found != storage_.users.end();

@@ -4,30 +4,28 @@
 
 #include "UserStorage.hpp"
 
+#include "TgBotSubscriber.hpp"
+#include "WebSocketSubscriber.hpp"
+
 int main()
 {
 #if defined(_WIN32) || defined(_WIN64)
 	system("chcp 65001 > nul");
 #endif // __WIN__
 
-	Service::init("config.json");
+	ClientBrocker brocker;
 
-	/*UserStorageAutosaver users;
+	TgBotSubscriber tg(brocker);
+	WebSocketSubscriber web(brocker);
 
-	users.saveToFile();
-	users.loadFromFile();*/
-
-	/*UserStorage stor;
-	UserFileSaver saver;
-
-	saver.saveStorageToFile(stor);
-	saver.loadStorageFromFile(stor);*/
+	brocker.start();
 
 
+	/*Service::init("config.json");
 
     Bot bot;
 
-	bot.run();
+	bot.run();*/
 
 	return 0;
 }

@@ -13,7 +13,7 @@ class CommandMeneger
 {
 public:
 
-    std::string startCommand(const std::string& commandKey, const std::string& tgId)
+    std::string startCommand(const std::string& commandKey, const std::string& tgId) const
     {
         RowJson param =
         {
@@ -29,21 +29,21 @@ public:
         return json["id"].empty() ? "" : json["id"].dump();
     }
 
-    std::string renewCommand(const std::string& webId)
+    std::string renewCommand(const std::string& webId) const
     {
         nlohmann::json json = sendAct("renew", webId);
         if (json.empty())
             Service::log.log("Renew command return empty json");
         return json["code"].empty() ? "false" : json["code"].dump();
     }
-    std::string onlineCommand(const std::string& webId)
+    std::string onlineCommand(const std::string& webId) const
     {
         nlohmann::json json = sendAct("online", webId);
         if (json.empty())
             Service::log.log("Online command return empty json");
         return json["code"] != "1" ? (json["online"].dump() + '\n' + json["list"].dump()) : "";
     }
-    std::string breakCommand(const std::string& webId)
+    std::string breakCommand(const std::string& webId) const
     {
         nlohmann::json json = sendAct("breakOut", webId);
         if (json.empty())
@@ -57,7 +57,7 @@ private:
 
 private:
 
-	nlohmann::json sendAct(const std::string& act, const std::string& webId)
+	nlohmann::json sendAct(const std::string& act, const std::string& webId) const
 	{
         RowJson param =
         {
