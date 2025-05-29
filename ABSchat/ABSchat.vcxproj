@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClInclude Include="Bot.hpp" />
     <ClInclude Include="Config.hpp" />
-    <ClInclude Include="FileSaver.hpp" />
     <ClInclude Include="HardCode.hpp" />
     <ClInclude Include="HTTPClient.hpp" />
     <ClInclude Include="LogOutput.hpp" />
@@ -155,7 +154,6 @@
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
     <Text Include="Log.txt" />
-    <Text Include="UsersInfo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
