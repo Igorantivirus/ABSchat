@@ -41,7 +41,7 @@ private:
 
 private:
 
-#pragma region Подключение
+#pragma region РџРѕРґРєР»СЋС‡РµРЅРёРµ
 
     void reconectTry()
     {
@@ -53,7 +53,7 @@ private:
         }
     }
 
-    //подключение к серверу
+    //РїРѕРґРєР»СЋС‡РµРЅРёРµ Рє СЃРµСЂРІРµСЂСѓ
     void connectWithServer()
     {
         Service::log.log("Connect try");
@@ -72,7 +72,7 @@ private:
 
 private:
 
-#pragma region Инициализация
+#pragma region РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
 
 	void initListeningSock()
 	{
@@ -87,7 +87,7 @@ private:
 
 private:
 
-#pragma region Обработка сообщений
+#pragma region РћР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРёР№
 
     void connectSuccess()
     {
@@ -139,7 +139,7 @@ private:
 
 private:
 
-#pragma region Отправка сообщений
+#pragma region РћС‚РїСЂР°РІРєР° СЃРѕРѕР±С‰РµРЅРёР№
 
     void sendMessageToServer(const ClientMessage& message)
     {

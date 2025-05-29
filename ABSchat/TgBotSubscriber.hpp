@@ -52,9 +52,9 @@ private:
 
 private:
 
-#pragma region Ñòàòè÷íûå ìåòîäû
+#pragma region Ð¡Ñ‚Ð°Ñ‚Ð¸Ñ‡Ð½Ñ‹Ðµ Ð¼ÐµÑ‚Ð¾Ð´Ñ‹
 
-    //ïðîâåðêà, ÷òî ÷àò - ñîîáùåñòâî è íå general
+    //Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ°, Ñ‡Ñ‚Ð¾ Ñ‡Ð°Ñ‚ - ÑÐ¾Ð¾Ð±Ñ‰ÐµÑÑ‚Ð²Ð¾ Ð¸ Ð½Ðµ general
     static bool notGeneralInSuperGroup(TgBot::Message::Ptr message)
     {
         return message->chat != nullptr &&
@@ -74,7 +74,7 @@ private:
 
 private:
 
-#pragma region Èíèöèàëèçàöèÿ
+#pragma region Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ
 
     void initKeyboard()
     {
@@ -105,7 +105,7 @@ private:
 
 private:
 
-#pragma region Îòïðàâêà ñîîáùåíèé â ÷àòû
+#pragma region ÐžÑ‚Ð¿Ñ€Ð°Ð²ÐºÐ° ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹ Ð² Ñ‡Ð°Ñ‚Ñ‹
 
     void sendMessage(const int64_t chatId, const std::string& message) const
     {
@@ -127,86 +127,86 @@ private:
 
 private:
 
-#pragma region Îáðàáîòêà ñîîáùåíèé
+#pragma region ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹
 
     void start(TgBot::Message::Ptr message)
     {
         std::string result = commander_.startCommand(eraseBeforeForstSpace(message->text), std::to_string(message->from->id));
         if (result.empty())
-            return sendMessage(message->chat->id, to_utf8(L"Íå óäàëîñü çàðåãåñòðèðîâàòüñÿ."));
+            return sendMessage(message->chat->id, to_utf8(L"ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð·Ð°Ñ€ÐµÐ³ÐµÑÑ‚Ñ€Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒÑÑ."));
 
         storage_.startChat(message->chat->id);
         storage_.addUser(message->from->id, std::stoll(result));
 
-        sendMessage(message->chat->id, to_utf8(L"Àâòîðèçàöèÿ óñïåøíà!"));
+        sendMessage(message->chat->id, to_utf8(L"ÐÐ²Ñ‚Ð¾Ñ€Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑƒÑÐ¿ÐµÑˆÐ½Ð°!"));
     }
     void renew(TgBot::Message::Ptr message) const
     {
         if (!storage_.isUserRegistered(message->from->id))
-            return sendMessage(message->chat->id, to_utf8(L"Âû íå ó÷àñòíèê ÷àòà. Êîìàíäà íå áóäåò âûïîëíåíà."));
+            return sendMessage(message->chat->id, to_utf8(L"Ð’Ñ‹ Ð½Ðµ ÑƒÑ‡Ð°ÑÑ‚Ð½Ð¸Ðº Ñ‡Ð°Ñ‚Ð°. ÐšÐ¾Ð¼Ð°Ð½Ð´Ð° Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð°."));
         std::string result = commander_.renewCommand(std::to_string(storage_.getWebIdSafely(message->from->id)));
 
         if (result == "true")
-            return sendMessage(message->chat->id, to_utf8(L"Ñåðâåð ïðîäë¸í."));
+            return sendMessage(message->chat->id, to_utf8(L"Ð¡ÐµÑ€Ð²ÐµÑ€ Ð¿Ñ€Ð¾Ð´Ð»Ñ‘Ð½."));
         if (result == "not reg")
-            return sendMessage(message->chat->id, to_utf8(L"Âû íå çàðåãåñòðèðîâàíû â òã áîòå."));
+            return sendMessage(message->chat->id, to_utf8(L"Ð’Ñ‹ Ð½Ðµ Ð·Ð°Ñ€ÐµÐ³ÐµÑÑ‚Ñ€Ð¸Ñ€Ð¾Ð²Ð°Ð½Ñ‹ Ð² Ñ‚Ð³ Ð±Ð¾Ñ‚Ðµ."));
         if (result == "already")
-            return sendMessage(message->chat->id, to_utf8(L"Ñåðâåð óæå ðàáîòàåò! Ïðîâåðüòå ñîñòîÿíèå ñåðâåðà"));
-        sendMessage(message->chat->id, to_utf8(L"Ñåðâåð íå áûë ïðîäë¸í."));
+            return sendMessage(message->chat->id, to_utf8(L"Ð¡ÐµÑ€Ð²ÐµÑ€ ÑƒÐ¶Ðµ Ñ€Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚! ÐŸÑ€Ð¾Ð²ÐµÑ€ÑŒÑ‚Ðµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ ÑÐµÑ€Ð²ÐµÑ€Ð°"));
+        sendMessage(message->chat->id, to_utf8(L"Ð¡ÐµÑ€Ð²ÐµÑ€ Ð½Ðµ Ð±Ñ‹Ð» Ð¿Ñ€Ð¾Ð´Ð»Ñ‘Ð½."));
     }
     void online(TgBot::Message::Ptr message) const
     {
         if (!storage_.isUserRegistered(message->from->id))
-            return sendMessage(message->chat->id, to_utf8(L"Âû íå ó÷àñòíèê ÷àòà. Êîìàíäà íå áóäåò âûïîëíåíà."));
+            return sendMessage(message->chat->id, to_utf8(L"Ð’Ñ‹ Ð½Ðµ ÑƒÑ‡Ð°ÑÑ‚Ð½Ð¸Ðº Ñ‡Ð°Ñ‚Ð°. ÐšÐ¾Ð¼Ð°Ð½Ð´Ð° Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð°."));
         std::string result = commander_.onlineCommand(std::to_string(storage_.getWebIdSafely(message->from->id)));
         if (result.empty())
-            return sendMessage(message->chat->id, to_utf8(L"Îøèáêà ïðîñìîòðà îíëàéíà."));
-        sendMessage(message->chat->id, to_utf8(L"Âñåãî èãðàåò: ") + result);
+            return sendMessage(message->chat->id, to_utf8(L"ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ñ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€Ð° Ð¾Ð½Ð»Ð°Ð¹Ð½Ð°."));
+        sendMessage(message->chat->id, to_utf8(L"Ð’ÑÐµÐ³Ð¾ Ð¸Ð³Ñ€Ð°ÐµÑ‚: ") + result);
     }
     void breakOut(TgBot::Message::Ptr message)
     {
         if (!storage_.isUserRegistered(message->from->id))
-            return sendMessage(message->chat->id, to_utf8(L"Âû íå ó÷àñòíèê ÷àòà. Êîìàíäà íå áóäåò âûïîëíåíà."));
+            return sendMessage(message->chat->id, to_utf8(L"Ð’Ñ‹ Ð½Ðµ ÑƒÑ‡Ð°ÑÑ‚Ð½Ð¸Ðº Ñ‡Ð°Ñ‚Ð°. ÐšÐ¾Ð¼Ð°Ð½Ð´Ð° Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð°."));
         std::string result = commander_.breakCommand(std::to_string(storage_.getWebIdSafely(message->from->id)));
         if (result == "true")
         {
             storage_.deleteUser(message->from->id);
-            sendMessage(message->chat->id, to_utf8(L"Âû áûëè óñïåøíî îòâÿçàíû îò òã."));
+            sendMessage(message->chat->id, to_utf8(L"Ð’Ñ‹ Ð±Ñ‹Ð»Ð¸ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾ Ð¾Ñ‚Ð²ÑÐ·Ð°Ð½Ñ‹ Ð¾Ñ‚ Ñ‚Ð³."));
         }
         else
-            sendMessage(message->chat->id, to_utf8(L"Îòâÿçêà íå ïðîøëà."));
+            sendMessage(message->chat->id, to_utf8(L"ÐžÑ‚Ð²ÑÐ·ÐºÐ° Ð½Ðµ Ð¿Ñ€Ð¾ÑˆÐ»Ð°."));
     }
     void stopChat(TgBot::Message::Ptr message)
     {
         if (!storage_.isUserRegistered(message->from->id))
-            sendMessage(message->chat->id, to_utf8(L"Âû íå ó÷àñòíèê ÷àòà. Êîìàíäà íå áóäåò âûïîëíåíà."));
+            sendMessage(message->chat->id, to_utf8(L"Ð’Ñ‹ Ð½Ðµ ÑƒÑ‡Ð°ÑÑ‚Ð½Ð¸Ðº Ñ‡Ð°Ñ‚Ð°. ÐšÐ¾Ð¼Ð°Ð½Ð´Ð° Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ð°."));
         else
         {
             storage_.stopChat(message->chat->id);
-            sendMessage(message->chat->id, to_utf8(L"Ìû áîëüøå íå áóäåì çàñîðÿòü âàø ÷àò."));
+            sendMessage(message->chat->id, to_utf8(L"ÐœÑ‹ Ð±Ð¾Ð»ÑŒÑˆÐµ Ð½Ðµ Ð±ÑƒÐ´ÐµÐ¼ Ð·Ð°ÑÐ¾Ñ€ÑÑ‚ÑŒ Ð²Ð°Ñˆ Ñ‡Ð°Ñ‚."));
         }
     }
     void startChat(TgBot::Message::Ptr message)
     {
         if (!storage_.isUserRegistered(message->from->id))
-            sendMessage(message->chat->id, to_utf8(L"Âû íå ó÷àñòíèê ñåðâåðà - ìû íå ìîæåì ðàáîòàòü ñ âàøèì ÷àòîì."));
+            sendMessage(message->chat->id, to_utf8(L"Ð’Ñ‹ Ð½Ðµ ÑƒÑ‡Ð°ÑÑ‚Ð½Ð¸Ðº ÑÐµÑ€Ð²ÐµÑ€Ð° - Ð¼Ñ‹ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÐ¼ Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ñ‚ÑŒ Ñ Ð²Ð°ÑˆÐ¸Ð¼ Ñ‡Ð°Ñ‚Ð¾Ð¼."));
         else
         {
             storage_.startChat(message->chat->id);
-            sendMessage(message->chat->id, to_utf8(L"Òåïåðü ìû áóäåì çàñîðÿòü âàø ÷àò."));
+            sendMessage(message->chat->id, to_utf8(L"Ð¢ÐµÐ¿ÐµÑ€ÑŒ Ð¼Ñ‹ Ð±ÑƒÐ´ÐµÐ¼ Ð·Ð°ÑÐ¾Ñ€ÑÑ‚ÑŒ Ð²Ð°Ñˆ Ñ‡Ð°Ñ‚."));
         }
     }
     void help(TgBot::Message::Ptr message) const
     {
-        std::string responce = to_utf8(LR"(Äîáðî ïîæàëîâàòü â áîòà ñåðâåðà ABSserver.
-Ñïèñîê êîìàíä:
-/help       - âû ñåé÷àñ å¸ èñïîëüçóåòå
-/online     - ïðîâåðêà îíëàéíà ñåðâåðà
-/renew      - ïðîäëèòü ñåðâåð íà ÷àñ
-/stopChat   - îñòàíîâèòü òïðàâêó ñîîáùåíèé â ýòîò ÷àò
-/startChat  - âîçîáíîâèòü îòïðàâêó ñîîáùåíèé â ýòîò ÷àò
-/keyboard   - âûâîä êëàâèàòóðû, åñëè âîçíèêëè ïðîáëåìû ñ íåé
-/break      - îòâÿçàòü àêêàóíò îò òåëåãðàììà)");
+        std::string responce = to_utf8(LR"(Ð”Ð¾Ð±Ñ€Ð¾ Ð¿Ð¾Ð¶Ð°Ð»Ð¾Ð²Ð°Ñ‚ÑŒ Ð² Ð±Ð¾Ñ‚Ð° ÑÐµÑ€Ð²ÐµÑ€Ð° ABSserver.
+Ð¡Ð¿Ð¸ÑÐ¾Ðº ÐºÐ¾Ð¼Ð°Ð½Ð´:
+/help       - Ð²Ñ‹ ÑÐµÐ¹Ñ‡Ð°Ñ ÐµÑ‘ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚Ðµ
+/online     - Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¾Ð½Ð»Ð°Ð¹Ð½Ð° ÑÐµÑ€Ð²ÐµÑ€Ð°
+/renew      - Ð¿Ñ€Ð¾Ð´Ð»Ð¸Ñ‚ÑŒ ÑÐµÑ€Ð²ÐµÑ€ Ð½Ð° Ñ‡Ð°Ñ
+/stopChat   - Ð¾ÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ñ‚Ð¿Ñ€Ð°Ð²ÐºÑƒ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹ Ð² ÑÑ‚Ð¾Ñ‚ Ñ‡Ð°Ñ‚
+/startChat  - Ð²Ð¾Ð·Ð¾Ð±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÑƒ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹ Ð² ÑÑ‚Ð¾Ñ‚ Ñ‡Ð°Ñ‚
+/keyboard   - Ð²Ñ‹Ð²Ð¾Ð´ ÐºÐ»Ð°Ð²Ð¸Ð°Ñ‚ÑƒÑ€Ñ‹, ÐµÑÐ»Ð¸ Ð²Ð¾Ð·Ð½Ð¸ÐºÐ»Ð¸ Ð¿Ñ€Ð¾Ð±Ð»ÐµÐ¼Ñ‹ Ñ Ð½ÐµÐ¹
+/break      - Ð¾Ñ‚Ð²ÑÐ·Ð°Ñ‚ÑŒ Ð°ÐºÐºÐ°ÑƒÐ½Ñ‚ Ð¾Ñ‚ Ñ‚ÐµÐ»ÐµÐ³Ñ€Ð°Ð¼Ð¼Ð°)");
         sendMessage(message->chat->id, responce);
     }
     void processMessage(TgBot::Message::Ptr message)
@@ -220,9 +220,9 @@ private:
         )
             return;
         if (!storage_.isUserRegistered(message->from->id))
-            return sendMessage(message->chat->id, to_utf8(L"Ñîîáùåíèå íå áóäåò îòïðàâëåíî! Âû íå çàðåãèñòðèðîâàíû!"));
+            return sendMessage(message->chat->id, to_utf8(L"Ð¡Ð¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¾! Ð’Ñ‹ Ð½Ðµ Ð·Ð°Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¸Ñ€Ð¾Ð²Ð°Ð½Ñ‹!"));
         if (message->text.size() > 1000)
-            sendMessage(message->chat->id, to_utf8(L"Ñëèøêîì äëèííîå ñîîáùåíèå."));
+            sendMessage(message->chat->id, to_utf8(L"Ð¡Ð»Ð¸ÑˆÐºÐ¾Ð¼ Ð´Ð»Ð¸Ð½Ð½Ð¾Ðµ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ."));
 
         if (message->voice)
         {

@@ -2,7 +2,7 @@
 
 #include <string>
 
-//1 - текст
+//1 - С‚РµРєСЃС‚
 //2 - id
 using ClientMessage = std::pair<std::string, int64_t>;
 using IDType = unsigned short;
