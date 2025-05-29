@@ -94,7 +94,11 @@ private:
 
     void sendMessage(const int64_t chatId, const std::string& message)
     {
+#if defined(_WIN32) || defined(_WIN64)
+        bot.getApi().sendMessage(chatId, message, false, 0, keyboard);
+#else
         bot.getApi().sendMessage(chatId, message, nullptr, 0, keyboard);
+#endif // WIN
     }
 
     void sendMessageToAllTgExcept(const std::string& message, const std::int64_t exceptIdTg = 0)
