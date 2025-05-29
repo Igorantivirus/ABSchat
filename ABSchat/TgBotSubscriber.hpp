@@ -112,7 +112,7 @@ private:
 #if defined(_WIN32) || defined(_WIN64)
         bot_.getApi().sendMessage(chatId, message, false, 0, keyboard_);
 #else
-        bot_.getApi().sendMessage(chatId, message, nullptr, 0, keyboard);
+        bot_.getApi().sendMessage(chatId, message, nullptr, 0, keyboard_);
 #endif // WIN
     }
 
