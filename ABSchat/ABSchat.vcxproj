@@ -145,10 +145,12 @@
     <ClInclude Include="HTTPClient.hpp" />
     <ClInclude Include="LogOutput.hpp" />
     <ClInclude Include="Service.hpp" />
+    <ClInclude Include="UserStorage.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
     <None Include="config.json" />
+    <None Include="UsersData.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

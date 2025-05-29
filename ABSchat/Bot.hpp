@@ -13,19 +13,17 @@
 
 #include "HTTPClient.hpp"
 #include "HardCode.hpp"
-#include "FileSaver.hpp"
-#include "LogOutput.hpp"
-#include "Config.hpp"
 #include "Service.hpp"
+#include "UserStorage.hpp"
 
 using RowJson = std::map<std::string, std::string>;
 
 class Bot
 {
 public:
-    Bot() : bot(Service::config.TG_BOT_KEY), saver{ users, chats, Service::config.FILE_TO_SAVE }
+    Bot() : bot(Service::config.TG_BOT_KEY)
     {
-        saver.readFromFile();
+        storage.loadFromFile();
 
         initKeyboard();
         initResponsesTG();
@@ -35,7 +33,7 @@ public:
     }
     ~Bot()
     {
-        saver.saveToFile();
+        storage.saveToFile();
     }
 
     void run()
@@ -72,22 +70,10 @@ private:
     TgBot::ReplyKeyboardMarkup::Ptr keyboard;
 
     sio::client client;
-    //первое id - с тг, второе с сайта
-    std::map<std::string, std::string> users;
-    std::set<int64_t> chats;
 
-    FileSaver saver;
+    UserStorageAutosaver storage;
 
 private:
-
-    std::string getUserIdFromServSafely(const std::int64_t id) const
-    {
-        std::string idTg = std::to_string(id);
-        auto found = users.find(idTg);
-        if (found == users.end())
-            return "";
-        return found->second;
-    }
 
     void sendMessage(const int64_t chatId, const std::string& message)
     {
@@ -100,7 +86,7 @@ private:
 
     void sendMessageToAllTgExcept(const std::string& message, const std::int64_t exceptIdTg = 0)
     {
-        for (const auto& chatId : chats)
+        for (const auto& chatId : storage.getStorage().chats)
             if(chatId != exceptIdTg)
                 sendMessage(chatId, message);
     }
@@ -142,13 +128,6 @@ private:
         client.connect(Service::config.url_to_connect, query);
     }
 
-    //проверка что пользователь зареган (idTg)
-    bool registered(const std::string& idTg)
-    {
-        auto found = users.find(idTg);
-        return found != users.end();
-    }
-
     void sendMessageToServer(const std::string& messageToServer, const std::string& userIds)
     {
         if (messageToServer.empty())
@@ -187,9 +166,10 @@ private:
         }
 
         std::string servUserId = json["id"].dump();    //Добавление зарегестрированного пользователя
-        chats.insert(message->chat->id);        //Добавление чата для отправки
-        users[std::to_string(message->from->id)] = servUserId;
-        saver.saveToFile();
+        
+        storage.startChat(message->chat->id);
+        storage.addUser(message->from->id, std::stoll(servUserId));
+        
         sendMessage(message->chat->id, to_utf8(L"Авторизация успешна!"));
     }
     void renew(TgBot::Message::Ptr message)
@@ -198,7 +178,7 @@ private:
         {
             {"code_server", Service::config.API_KEY},
             {"act", "renew"},
-            {"id", getUserIdFromServSafely(message->from->id)}
+            {"id", std::to_string(storage.getWebIdSafely(message->from->id))}
         };
         HttpClient http;
         std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
@@ -222,7 +202,7 @@ private:
         RowJson param = {
             {"code_server", Service::config.API_KEY},
             {"act", "online"},
-            {"id", getUserIdFromServSafely(message->from->id)}//Даю id чата
+            {"id", std::to_string(storage.getWebIdSafely(message->from->id))}//Даю id чата
         };
         HttpClient http;
         std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
@@ -255,8 +235,7 @@ private:
         else if (json["code"] == "true")
         {
             result = to_utf8(L"Вы были успешно отвязаны от тг.");
-            users.erase(std::to_string(message->from->id));
-            saver.saveToFile();
+            storage.deleteUser(message->from->id);
         }
         else
             result = to_utf8(L"Отвязка не прошла.");
@@ -265,21 +244,21 @@ private:
     }
     void stopChat(TgBot::Message::Ptr message)
     {
-        if (!registered(std::to_string(message->from->id)))
+        if(!storage.isUserRegistered(message->from->id))
             sendMessage(message->chat->id, to_utf8(L"Вы не участник чата. Команда не будет выполнена."));
         else
         {
-            chats.erase(message->chat->id);
+            storage.stopChat(message->chat->id);
             sendMessage(message->chat->id, to_utf8(L"Мы больше не будем засорять ваш чат."));
         }
     }
     void startChat(TgBot::Message::Ptr message)
     {
-        if (!registered(std::to_string(message->from->id)))
+        if (!storage.isUserRegistered(message->from->id))
             sendMessage(message->chat->id, to_utf8(L"Вы не участник сервера - мы не можем работать с вашим чатом."));
         else
         {
-            chats.insert(message->chat->id);
+            storage.startChat(message->chat->id);
             sendMessage(message->chat->id, to_utf8(L"Теперь мы будем засорять ваш чат."));
         }
     }
@@ -300,7 +279,7 @@ private:
     {
         if (!message->text.empty() && message->text[0] == '/')
             return;
-        if (!registered(std::to_string(message->from->id)))
+        if (!storage.isUserRegistered(message->from->id))
             return sendMessage(message->chat->id, to_utf8(L"Сообщение не будет отправлено! Вы не серверный чел!"));
         if (notGeneralInSuperGroup(message))
             return;
@@ -317,7 +296,7 @@ private:
 
             client.socket()->emit("voice_message", msg);
         }
-        else if (chats.find(message->chat->id) == chats.end())
+        else if (!storage.isChatOpen(message->chat->id))
             return;
         else if(message->text.size() > 1000)
             sendMessage(message->chat->id, to_utf8(L"Слишком длинное сообщение."));
@@ -400,9 +379,7 @@ private:
         std::string user = (userIt != obj.end() && userIt->second) ? userIt->second->get_string() : "???";
         std::string message = (messageIt != obj.end() && messageIt->second) ? messageIt->second->get_string() : "";
         std::string type = (typeIt != obj.end() && typeIt->second) ? typeIt->second->get_string() : "";
-        //if(type == "mine")
-        //{
-        //}
+
         if(type != "tg")
             sendMessageToAllTgExcept('<' + user + "> " + message);
     }
@@ -421,8 +398,7 @@ private:
 
         std::string idDel = (idDelIt != obj.end() && idDelIt->second) ? idDelIt->second->get_string() : "???";
 
-        users.erase(idDel);
-        saver.saveToFile();
+        storage.deleteUser(std::stoull(idDel));
     }
 
     void initListeningSock()
