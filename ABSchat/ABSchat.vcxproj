@@ -139,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bot.hpp" />
+    <ClInclude Include="CommandMeneger.hpp" />
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="HardCode.hpp" />
     <ClInclude Include="HTTPClient.hpp" />

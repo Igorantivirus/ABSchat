@@ -15,6 +15,7 @@
 #include "HardCode.hpp"
 #include "Service.hpp"
 #include "UserStorage.hpp"
+#include "CommandMeneger.hpp"
 
 using RowJson = std::map<std::string, std::string>;
 
@@ -72,6 +73,7 @@ private:
     sio::client client;
 
     UserStorageAutosaver storage;
+    CommandMeneger commander;
 
 private:
 
@@ -146,101 +148,50 @@ private:
 
     void start(TgBot::Message::Ptr message)
     {
-        std::string pr = message->text;
-        RowJson param =
-        {
-            {"code_server", Service::config.API_KEY},
-            {"act", "reg"},
-            {"code", eraseBeforeForstSpace(message->text)},
-            {"id_tg", std::to_string(message->from->id)},
-        };
-        HttpClient http;
-        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
+        std::string result = commander.startCommand(eraseBeforeForstSpace(message->text), std::to_string(message->from->id));
+        if (result.empty())
+            return sendMessage(message->chat->id, to_utf8(L"Не удалось зарегестрироваться."));
 
-        nlohmann::json json = nlohmann::json::parse(responce);
-
-        if (json["code"] != "true")
-        {
-            sendMessage(message->chat->id, to_utf8(L"Не удалось харегестрироваться."));
-            return;
-        }
-
-        std::string servUserId = json["id"].dump();    //Добавление зарегестрированного пользователя
-        
         storage.startChat(message->chat->id);
-        storage.addUser(message->from->id, std::stoll(servUserId));
-        
+        storage.addUser(message->from->id, std::stoll(result));
+
         sendMessage(message->chat->id, to_utf8(L"Авторизация успешна!"));
     }
     void renew(TgBot::Message::Ptr message)
     {
-        RowJson param =
-        {
-            {"code_server", Service::config.API_KEY},
-            {"act", "renew"},
-            {"id", std::to_string(storage.getWebIdSafely(message->from->id))}
-        };
-        HttpClient http;
-        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
+        if (!storage.isUserRegistered(message->from->id))
+            return sendMessage(message->chat->id, to_utf8(L"Вы не участник чата. Команда не будет выполнена."));
+        std::string result = commander.renewCommand(std::to_string(storage.getWebIdSafely(message->from->id)));
 
-        nlohmann::json json = nlohmann::json::parse(responce);
-        std::string result;
-        if (json["code"].empty())
-            result = to_utf8(L"Ошибка обращения к серверу.");
-        else if(json["code"] == "true")
-            result = to_utf8(L"Сервер продлён.");
-        else if(json["code"] == "not reg")
-            result = to_utf8(L"Вы не зарегестрированы в тг боте.");
-        else if(json["code"] == "already")
-            result = to_utf8(L"Сервер уже работает! Проверьте состояние сервера");
-        else
-            result = to_utf8(L"Сервер не был продлён.");
-        sendMessage(message->chat->id, result);
+        if (result == "true")
+            return sendMessage(message->chat->id, to_utf8(L"Сервер продлён."));
+        if (result == "not reg")
+            return sendMessage(message->chat->id, to_utf8(L"Вы не зарегестрированы в тг боте."));
+        if (result == "already")
+            return sendMessage(message->chat->id, to_utf8(L"Сервер уже работает! Проверьте состояние сервера"));
+        sendMessage(message->chat->id, to_utf8(L"Сервер не был продлён."));
     }
     void online(TgBot::Message::Ptr message)
     {
-        RowJson param = {
-            {"code_server", Service::config.API_KEY},
-            {"act", "online"},
-            {"id", std::to_string(storage.getWebIdSafely(message->from->id))}//Даю id чата
-        };
-        HttpClient http;
-        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
-
-        nlohmann::json json = nlohmann::json::parse(responce);
-        std::string result;
-        if (json["code"] != "1")
-            result = to_utf8(L"Всего играет: ") + json["online"].dump() + '\n' + json["list"].dump();
-        else
-            result = to_utf8(L"Ошибка просмотра онлайна.");
-
-        sendMessage(message->chat->id, result);
+        if (!storage.isUserRegistered(message->from->id))
+            return sendMessage(message->chat->id, to_utf8(L"Вы не участник чата. Команда не будет выполнена."));
+        std::string result = commander.onlineCommand(std::to_string(storage.getWebIdSafely(message->from->id)));
+        if (result.empty())
+            return sendMessage(message->chat->id, to_utf8(L"Ошибка просмотра онлайна."));
+        sendMessage(message->chat->id, to_utf8(L"Всего играет: ") + result);
     }
     void breakOut(TgBot::Message::Ptr message)
     {
-        RowJson param =
+        if (!storage.isUserRegistered(message->from->id))
+            return sendMessage(message->chat->id, to_utf8(L"Вы не участник чата. Команда не будет выполнена."));
+        std::string result = commander.breakCommand(std::to_string(storage.getWebIdSafely(message->from->id)));
+        if (result == "true")
         {
-            {"code_server", Service::config.API_KEY},
-            {"act", "breakOut"},
-            {"id", std::to_string(message->from->id)}
-        };
-
-        HttpClient http;
-        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
-
-        nlohmann::json json = nlohmann::json::parse(responce);
-        std::string result;
-        if (json["code"].empty())
-            result = to_utf8(L"Ошибка обращения к серверу.");
-        else if (json["code"] == "true")
-        {
-            result = to_utf8(L"Вы были успешно отвязаны от тг.");
             storage.deleteUser(message->from->id);
+            sendMessage(message->chat->id, to_utf8(L"Вы были успешно отвязаны от тг."));
         }
         else
-            result = to_utf8(L"Отвязка не прошла.");
-
-        sendMessage(message->chat->id, result);
+            sendMessage(message->chat->id, to_utf8(L"Отвязка не прошла."));
     }
     void stopChat(TgBot::Message::Ptr message)
     {

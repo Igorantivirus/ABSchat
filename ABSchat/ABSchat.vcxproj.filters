@@ -35,21 +35,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_client.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_message.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\sio_socket.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\internal\sio_client_impl.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\socket.io-client-cpp\src\internal\sio_packet.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Bot.hpp">
       <Filter>BotHeaders</Filter>
     </ClInclude>
@@ -59,24 +44,29 @@
     <ClInclude Include="HTTPClient.hpp">
       <Filter>BotHeaders</Filter>
     </ClInclude>
-    <ClInclude Include="FileSaver.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="LogOutput.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Config.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="ServerClient.hpp">
+    <ClInclude Include="Service.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="UserStorage.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandMeneger.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
     <None Include="config.json" />
+    <None Include="UsersData.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Log.txt" />
+    <Text Include="CMakeLists.txt" />
   </ItemGroup>
 </Project>
