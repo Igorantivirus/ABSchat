@@ -1,9 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "Bot.hpp"
-
-#include "UserStorage.hpp"
-
 #include "TgBotSubscriber.hpp"
 #include "WebSocketSubscriber.hpp"
 
@@ -19,13 +15,6 @@ int main()
 	WebSocketSubscriber web(brocker);
 
 	brocker.start();
-
-
-	/*Service::init("config.json");
-
-    Bot bot;
-
-	bot.run();*/
 
 	return 0;
 }

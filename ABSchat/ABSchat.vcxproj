@@ -138,7 +138,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bot.hpp" />
     <ClInclude Include="ClientBrocker.hpp" />
     <ClInclude Include="ClientSubscriber.hpp" />
     <ClInclude Include="CommandMeneger.hpp" />

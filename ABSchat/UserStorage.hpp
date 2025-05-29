@@ -11,11 +11,6 @@
 
 struct UserStorage
 {
-	UserStorage()
-	{
-		users[1642467431] = 8;
-		chats.insert(1642467431);
-	}
 	//первое id - с тг, второе с сайта
 	std::map<int64_t, int64_t> users;
 	std::set<int64_t> chats;

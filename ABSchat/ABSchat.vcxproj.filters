@@ -13,11 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="BotHeaders">
-      <UniqueIdentifier>{7dbe06b8-00fd-44c2-a343-9b8248393abf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="SubHeaders">
       <UniqueIdentifier>{c4f1c3b1-7b44-461f-ab35-9513f6f3884d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CommonClasses">
+      <UniqueIdentifier>{1f8614bc-b664-4365-86d6-3ca3c798dbf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TgBotAdditional">
+      <UniqueIdentifier>{94856912-64aa-46f9-a94b-dd798b62a102}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -38,30 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bot.hpp">
-      <Filter>BotHeaders</Filter>
-    </ClInclude>
-    <ClInclude Include="HardCode.hpp">
-      <Filter>BotHeaders</Filter>
-    </ClInclude>
-    <ClInclude Include="HTTPClient.hpp">
-      <Filter>BotHeaders</Filter>
-    </ClInclude>
-    <ClInclude Include="LogOutput.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Config.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Service.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="UserStorage.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandMeneger.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="ClientSubscriber.hpp">
       <Filter>SubHeaders</Filter>
     </ClInclude>
@@ -73,6 +52,27 @@
     </ClInclude>
     <ClInclude Include="WebSocketSubscriber.hpp">
       <Filter>SubHeaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.hpp">
+      <Filter>CommonClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="LogOutput.hpp">
+      <Filter>CommonClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="Service.hpp">
+      <Filter>CommonClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="HardCode.hpp">
+      <Filter>CommonClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandMeneger.hpp">
+      <Filter>TgBotAdditional</Filter>
+    </ClInclude>
+    <ClInclude Include="HTTPClient.hpp">
+      <Filter>TgBotAdditional</Filter>
+    </ClInclude>
+    <ClInclude Include="UserStorage.hpp">
+      <Filter>TgBotAdditional</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
