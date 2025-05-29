@@ -16,16 +16,14 @@
 #include "FileSaver.hpp"
 #include "LogOutput.hpp"
 #include "Config.hpp"
+#include "Service.hpp"
 
 using RowJson = std::map<std::string, std::string>;
 
 class Bot
 {
-    Config config;
-    bool running_ = true;
-
 public:
-    Bot(const std::string configPath) : config(loadConfig(configPath)), bot(config.TG_BOT_KEY), saver{ users, chats, config.FILE_TO_SAVE }, log{ config.LOG_FILE, true }
+    Bot() : bot(Service::config.TG_BOT_KEY), saver{ users, chats, Service::config.FILE_TO_SAVE }
     {
         saver.readFromFile();
 
@@ -44,27 +42,27 @@ public:
     {
         try
         {
-            log.log({ "Bot started. Username: ", bot.getApi().getMe()->username.c_str() });
+            Service::log.log({ "Bot started. Username: ", bot.getApi().getMe()->username.c_str() });
             TgBot::TgLongPoll longPoll(bot);
             while (true)
             {
                 if (!client.opened())
                     reconectTry();
-                log.log("Long poll started");
+                Service::log.log("Long poll started");
                 longPoll.start();
             }
         }
         catch (const TgBot::TgException& e)
         {
-            log.log({ "Bot error: ",e.what() });
+            Service::log.log({ "Bot error: ",e.what() });
         }
         catch (const std::exception& e)
         {
-            log.log({ "Std error: ",e.what() });
+            Service::log.log({ "Std error: ",e.what() });
         }
         catch (...)
         {
-            log.log("Unknown Error");
+            Service::log.log("Unknown Error");
         }
     }
 
@@ -79,7 +77,6 @@ private:
     std::set<int64_t> chats;
 
     FileSaver saver;
-    LogOutput log;
 
 private:
 
@@ -121,7 +118,7 @@ private:
 
     void reconectTry()
     {
-        log.log("Connectfailed, next try to reconnecd");
+        Service::log.log("Connectfailed, next try to reconnecd");
         std::chrono::milliseconds timespan(5000); // 1 second
         while (!client.opened())
         {
@@ -133,16 +130,16 @@ private:
     //подключение к серверу
     void connectWithServer()
     {
-        log.log("Connect try");
+        Service::log.log("Connect try");
 
         std::string token = jwt::create()
             .set_payload_claim("connect_by", jwt::claim(std::string("tg")))
-            .set_payload_claim("api_pass", jwt::claim(config.API_KEY))
-            .sign(jwt::algorithm::hs256{ config.SUPER_SECRET_KEY });
+            .set_payload_claim("api_pass", jwt::claim(Service::config.API_KEY))
+            .sign(jwt::algorithm::hs256{ Service::config.SUPER_SECRET_KEY });
 
         std::map<std::string, std::string> query;
         query["token"] = token;
-        client.connect(config.url_to_connect, query);
+        client.connect(Service::config.url_to_connect, query);
     }
 
     //проверка что пользователь зареган (idTg)
@@ -173,13 +170,13 @@ private:
         std::string pr = message->text;
         RowJson param =
         {
-            {"code_server", config.API_KEY},
+            {"code_server", Service::config.API_KEY},
             {"act", "reg"},
             {"code", eraseBeforeForstSpace(message->text)},
             {"id_tg", std::to_string(message->from->id)},
         };
         HttpClient http;
-        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
+        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
 
         nlohmann::json json = nlohmann::json::parse(responce);
 
@@ -199,12 +196,12 @@ private:
     {
         RowJson param =
         {
-            {"code_server", config.API_KEY},
+            {"code_server", Service::config.API_KEY},
             {"act", "renew"},
             {"id", getUserIdFromServSafely(message->from->id)}
         };
         HttpClient http;
-        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
+        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
 
         nlohmann::json json = nlohmann::json::parse(responce);
         std::string result;
@@ -223,12 +220,12 @@ private:
     void online(TgBot::Message::Ptr message)
     {
         RowJson param = {
-            {"code_server", config.API_KEY},
+            {"code_server", Service::config.API_KEY},
             {"act", "online"},
             {"id", getUserIdFromServSafely(message->from->id)}//Даю id чата
         };
         HttpClient http;
-        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
+        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
 
         nlohmann::json json = nlohmann::json::parse(responce);
         std::string result;
@@ -243,13 +240,13 @@ private:
     {
         RowJson param =
         {
-            {"code_server", config.API_KEY},
+            {"code_server", Service::config.API_KEY},
             {"act", "breakOut"},
             {"id", std::to_string(message->from->id)}
         };
 
         HttpClient http;
-        std::string responce = http.getRequastParam(config.URL_SERVER_BOT, param);
+        std::string responce = http.getRequastParam(Service::config.URL_SERVER_BOT, param);
 
         nlohmann::json json = nlohmann::json::parse(responce);
         std::string result;
@@ -309,9 +306,9 @@ private:
             return;
         if (message->voice)
         {
-            log.log("VOICE!!!");
+            Service::log.log("VOICE!!!");
             auto file = bot.getApi().getFile(message->voice->fileId);
-            std::string downloadLink = "https://api.telegram.org/file/bot" + config.TG_BOT_KEY + "/" + file->filePath;
+            std::string downloadLink = "https://api.telegram.org/file/bot" + Service::config.TG_BOT_KEY + "/" + file->filePath;
 
             auto msg = sio::object_message::create();
             msg->get_map()["filePath"] = sio::string_message::create(file->filePath);
@@ -375,15 +372,15 @@ private:
 
     void connectSuccess()
     {
-        log.log("Connect sucsess");
+        Service::log.log("Connect sucsess");
     }
     void connectFatal()
     {
-        log.log("Connect fatal");
+        Service::log.log("Connect fatal");
     }
     void connectClosed(sio::client::close_reason const& reason)
     {
-        log.log("Connect closed. Reaon: ", static_cast<int>(reason));
+        Service::log.log("Connect closed. Reaon: ", static_cast<int>(reason));
     }
     void onMessageResponse(sio::event& ev)
     {
@@ -391,7 +388,7 @@ private:
 
         if (data->get_flag() != sio::message::flag_object)
         {
-            log.log("Get message, but its not a object");
+            Service::log.log("Get message, but its not a object");
             return;
         }
         auto obj = data->get_map();
@@ -415,7 +412,7 @@ private:
 
         if (data->get_flag() != sio::message::flag_object)
         {
-            log.log("Get delete_id, but its not a object");
+            Service::log.log("Get delete_id, but its not a object");
             return;
         }
         auto obj = data->get_map();

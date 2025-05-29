@@ -8,7 +8,9 @@ int main()
 	system("chcp 65001 > nul");
 #endif // __WIN__
 
-    Bot bot("config.json");
+	Service::init("config.json");
+
+    Bot bot;
 
 	bot.run();
 

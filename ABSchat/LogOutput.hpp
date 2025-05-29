@@ -10,14 +10,20 @@
 class LogOutput
 {
 public:
-	LogOutput(const std::string& fileName, const bool writeCoConsole = false) :
-		toConsole(writeCoConsole)
+	LogOutput() = default;
+	LogOutput(const std::string& fileName, const bool writeCoConsole = false)
 	{
-		logout.open(fileName, std::ios_base::app);
+		init(fileName, writeCoConsole);
 	}
 	~LogOutput()
 	{
 		logout.close();
+	}
+
+	void init(const std::string& fileName, const bool writeCoConsole = false)
+	{
+		toConsole = writeCoConsole;
+		logout.open(fileName, std::ios_base::app);
 	}
 
 	void setConsoleMode(const bool writeCoConsole)
