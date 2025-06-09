@@ -1,6 +1,6 @@
 #pragma once
 
-#include <regex>
+#include <thread>
 
 #include <tgbot/tgbot.h>
 
@@ -11,7 +11,15 @@ class TgBotSubscriber : public ClientSubscriber
 {
 public:
     TgBotSubscriber(ClientBrocker& brocker) :
-        ClientSubscriber{}, brocker_{ brocker }, bot_{ Service::config.TG_BOT_KEY }, longPoll_{bot_}
+        ClientSubscriber{}, brocker_{ brocker }, bot_{ Service::config.TG_BOT_KEY }, longPoll_{bot_},
+        telegram_thread_{ [this]()
+            {
+                while (work_)
+                {
+                    Service::log.log("Long poll started");
+                    longPoll_.start();
+                }
+            } }
     {
         brocker_.addSub(this);
 
@@ -22,6 +30,11 @@ public:
         
         Service::log.log({ "Bot started. Username: ", bot_.getApi().getMe()->username.c_str() });
     }
+    ~TgBotSubscriber()
+    {
+        work_ = false;
+        telegram_thread_.join();
+    }
 
     void sendMessageToYouself(const ClientMessage& message, const TypeMessage type) override
     {
@@ -30,11 +43,12 @@ public:
     }
     void update() override
     {
-        Service::log.log("Long poll started");
-        longPoll_.start();
+        
     }
 
 private:
+
+    bool work_ = true;
 
     ClientBrocker& brocker_;
 
@@ -43,6 +57,8 @@ private:
     TgBot::TgLongPoll longPoll_;
 
     std::set<int64_t> chats_;
+
+    std::thread telegram_thread_;
 
 private:
 
