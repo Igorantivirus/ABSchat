@@ -18,6 +18,8 @@ public:
         client_{Service::config.MINECRAFT_SERVER_IP, Service::config.MINECRAFT_SERVER_PORT, Service::config.MINECRAFT_SERVER_PASSWORD }
     {
         brocker_.addSub(this);
+
+        client.start(true);
     }
 
     void sendMessageToYouself(const ClientMessage& message, const TypeMessage type) override
