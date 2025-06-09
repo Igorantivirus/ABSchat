@@ -10,7 +10,7 @@ class ClientBrocker
 public:
 	ClientBrocker()
 	{
-		Service::init("config.json");
+		Service::init("configWS.json");
 	}
 
 	void addSub(ClientSubscriber* sub)
