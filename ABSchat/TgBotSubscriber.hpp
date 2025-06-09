@@ -75,9 +75,8 @@ private:
         keyboard_->oneTimeKeyboard = false;
         keyboard_->keyboard =
         {
-            {makeButton("/renew"),makeButton("/online")},
-            {makeButton("/stopChat"),makeButton("/startChat")},
-            {makeButton("/break"), makeButton("/help")}
+            {makeButton("/help"),makeButton("/online")},
+            {makeButton("/updateChats"), makeButton("/start")}
         };
     }
 
@@ -120,6 +119,8 @@ private:
 
     bool isAdmin(TgBot::Message::Ptr message) const
     {
+        if (message->chat->type != TgBot::Chat::Type::Supergroup && message->chat->type != TgBot::Chat::Type::Group)
+            return false;
         auto admins = bot_.getApi().getChatAdministrators(message->chat->id);
         for (const auto& admin : admins)
             if (admin->user->id == message->from->id)
@@ -151,7 +152,7 @@ private:
     }
     void updateChats(TgBot::Message::Ptr message)
     {
-        if (!isAdmin(message))
+        if (message->chat->type != TgBot::Chat::Type::Private && !isAdmin(message))
             return;
         chats_ = ChatsList::getActualChats();
         std::string result;
