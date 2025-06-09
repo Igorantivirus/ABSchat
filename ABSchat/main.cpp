@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "TgBotSubscriber.hpp"
-#include "WebSocketSubscriber.hpp"
+#include "MinecraftChatSubscriber.hpp"
 
 int main()
 {
@@ -12,7 +12,7 @@ int main()
 	ClientBrocker brocker;
 
 	TgBotSubscriber tg(brocker);
-	WebSocketSubscriber web(brocker);
+	MinecraftChatSubscriber mine(brocker);
 
 	brocker.start();
 

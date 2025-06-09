@@ -4,7 +4,7 @@
 
 //1 - текст
 //2 - id
-using ClientMessage = std::pair<std::string, int64_t>;
+using ClientMessage = std::string;
 using IDType = unsigned short;
 
 enum class TypeMessage : unsigned char

@@ -367,3 +367,7 @@ KEYS.hpp
 # Данные юзеров
 config.json
 UsersInfo.txt
+configWS.json
+UsersData.json
+Log.txt
+Chats.json

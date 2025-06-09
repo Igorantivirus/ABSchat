@@ -50,9 +50,6 @@
     <ClInclude Include="TgBotSubscriber.hpp">
       <Filter>SubHeaders</Filter>
     </ClInclude>
-    <ClInclude Include="WebSocketSubscriber.hpp">
-      <Filter>SubHeaders</Filter>
-    </ClInclude>
     <ClInclude Include="Config.hpp">
       <Filter>CommonClasses</Filter>
     </ClInclude>
@@ -65,20 +62,19 @@
     <ClInclude Include="HardCode.hpp">
       <Filter>CommonClasses</Filter>
     </ClInclude>
-    <ClInclude Include="CommandMeneger.hpp">
-      <Filter>TgBotAdditional</Filter>
+    <ClInclude Include="MinecraftChatSubscriber.hpp">
+      <Filter>SubHeaders</Filter>
     </ClInclude>
-    <ClInclude Include="HTTPClient.hpp">
-      <Filter>TgBotAdditional</Filter>
-    </ClInclude>
-    <ClInclude Include="UserStorage.hpp">
-      <Filter>TgBotAdditional</Filter>
+    <ClInclude Include="ChatsList.hpp">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
     <None Include="config.json" />
     <None Include="UsersData.json" />
+    <None Include="configWS.json" />
+    <None Include="Chats.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Log.txt" />

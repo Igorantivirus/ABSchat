@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;ASIO_STANDALONE;_WEBSOCKETPP_CPP11_STL_;_WEBSOCKETPP_CPP11_FUNCTIONAL_;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\dev\libraries\jwt-cpp\include;D:\dev\libraries\socket.io-client-cpp\src;D:\dev\libraries\socket.io-client-cpp\lib\rapidjson\include;D:\dev\libraries\socket.io-client-cpp\lib\websocketpp;D:\dev\libraries\socket.io-client-cpp\lib\asio\asio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\dev\libraries\rconpp-main\include;D:\dev\libraries\jwt-cpp\include;D:\dev\libraries\socket.io-client-cpp\src;D:\dev\libraries\socket.io-client-cpp\lib\rapidjson\include;D:\dev\libraries\socket.io-client-cpp\lib\websocketpp;D:\dev\libraries\socket.io-client-cpp\lib\asio\asio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -120,7 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;BOOST_DATE_TIME_NO_LIB;BOOST_REGEX_NO_LIB;ASIO_STANDALONE;_WEBSOCKETPP_CPP11_STL_;_WEBSOCKETPP_CPP11_FUNCTIONAL_;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\dev\libraries\jwt-cpp\include;D:\dev\libraries\socket.io-client-cpp\src;D:\dev\libraries\socket.io-client-cpp\lib\rapidjson\include;D:\dev\libraries\socket.io-client-cpp\lib\websocketpp;D:\dev\libraries\socket.io-client-cpp\lib\asio\asio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\dev\libraries\rconpp-main\include;D:\dev\libraries\jwt-cpp\include;D:\dev\libraries\socket.io-client-cpp\src;D:\dev\libraries\socket.io-client-cpp\lib\rapidjson\include;D:\dev\libraries\socket.io-client-cpp\lib\websocketpp;D:\dev\libraries\socket.io-client-cpp\lib\asio\asio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -138,21 +138,21 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChatsList.hpp" />
     <ClInclude Include="ClientBrocker.hpp" />
     <ClInclude Include="ClientSubscriber.hpp" />
-    <ClInclude Include="CommandMeneger.hpp" />
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="HardCode.hpp" />
-    <ClInclude Include="HTTPClient.hpp" />
     <ClInclude Include="LogOutput.hpp" />
+    <ClInclude Include="MinecraftChatSubscriber.hpp" />
     <ClInclude Include="Service.hpp" />
     <ClInclude Include="TgBotSubscriber.hpp" />
-    <ClInclude Include="UserStorage.hpp" />
-    <ClInclude Include="WebSocketSubscriber.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitignore" />
+    <None Include="Chats.json" />
     <None Include="config.json" />
+    <None Include="configWS.json" />
     <None Include="UsersData.json" />
   </ItemGroup>
   <ItemGroup>
