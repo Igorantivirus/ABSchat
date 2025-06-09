@@ -19,7 +19,23 @@ public:
     {
         brocker_.addSub(this);
 
-        client.start(true);
+        std::ifstream ifs(Service::config.LATEST_LENGTH_PATH);
+        if (ifs.is_open())
+        {
+            ifs >> latestLength;
+            ifs.close();
+        }
+
+        client_.start(true);
+    }
+    ~MinecraftChatSubscriber()
+    {
+        std::ofstream ifs(Service::config.LATEST_LENGTH_PATH);
+        if (ifs.is_open())
+        {
+            ifs << latestLength;
+            ifs.close();
+        }
     }
 
     void sendMessageToYouself(const ClientMessage& message, const TypeMessage type) override
@@ -48,11 +64,13 @@ private:
 
     std::list<std::string> messages_;
 
+    std::streamsize latestLength = 0;
+
 private:
 
     void extractMessages()
     {
-        static std::streamsize latestLength = 0;
+        /*static std::streamsize latestLength = 0;
         static bool firstRun = true;
         if (firstRun)
         {
@@ -64,7 +82,7 @@ private:
                 ifs >> latestLength;
                 ifs.close();
             }
-        }
+        }*/
 
 
         std::ifstream logFile(Service::config.LOGS_PATH, std::ios::in | std::ios::binary);
