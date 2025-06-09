@@ -22,7 +22,7 @@ public:
 
     void sendMessageToYouself(const ClientMessage& message, const TypeMessage type) override
     {
-        std::string command = "/tellraw @a [\"" + message + '\"';
+        std::string command = "/tellraw @a [\"" + message + "\"]";
 
         client_.send_data(command, 3, rconpp::data_type::SERVERDATA_EXECCOMMAND, [](const rconpp::response& response)
             {
