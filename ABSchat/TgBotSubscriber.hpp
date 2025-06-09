@@ -15,6 +15,8 @@ public:
     {
         brocker_.addSub(this);
 
+        chats_ = ChatsList::getActualChats();
+
         initKeyboard();
         initResponses();
         
@@ -129,7 +131,7 @@ private:
     }
     bool isChatIsOpen(const int64_t id) const
     {
-        return chats_.find(id) != chats_.end();
+        return chats_.count(id);
     }
 
     void start(TgBot::Message::Ptr message) const
