@@ -27,7 +27,22 @@ find_package(nlohmann_json REQUIRED)
 find_package(sioclient REQUIRED)
 find_package(CURL REQUIRED)
 
-add_executable(Server Bot.hpp HardCode.hpp main.cpp FileSaver.hpp HTTPClient.hpp Config.hpp)
+add_executable(Server
+    main.cpp
+    ChatsList.hpp
+    ClientBrocker.hpp
+    ClientSubscriber.hpp
+    CommandMeneger.hpp
+    Config.hpp
+    HardCode.hpp
+    HTTPClient.hpp
+    LogOutput.hpp
+    MinecraftChatSubscriber.hpp
+    Service.hpp
+    TgBotSubscriber.hpp
+    UserStorage.hpp
+    WebSocketSubscriber.hpp
+)
 
 target_link_libraries(Server PRIVATE nlohmann_json)
 target_link_libraries(Server PRIVATE jwt-cpp::jwt-cpp)
