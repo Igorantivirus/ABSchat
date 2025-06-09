@@ -18,14 +18,19 @@ public:
         client_{Service::config.MINECRAFT_SERVER_IP, Service::config.MINECRAFT_SERVER_PORT, Service::config.MINECRAFT_SERVER_PASSWORD }
     {
         brocker_.addSub(this);
-
+        client_.on_log = [](const std::string_view& log)
+            {
+                Service::log.log({"Message from RCON: ", std::string(log)});
+            };
+        
         std::ifstream ifs(Service::config.LATEST_LENGTH_PATH);
         if (ifs.is_open())
         {
             ifs >> latestLength;
             ifs.close();
         }
-
+        ifs.close();
+        
         client_.start(true);
     }
     ~MinecraftChatSubscriber()
