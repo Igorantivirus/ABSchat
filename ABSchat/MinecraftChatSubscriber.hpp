@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <regex>
 #include <fstream>
+#include <list>
 
 #include <rconpp/rcon.h>
 
