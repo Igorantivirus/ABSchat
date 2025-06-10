@@ -12,14 +12,16 @@ class TgBotSubscriber : public ClientSubscriber
 public:
     TgBotSubscriber(ClientBrocker& brocker) :
         ClientSubscriber{}, brocker_{ brocker }, bot_{ Service::config.TG_BOT_KEY }, longPoll_{bot_},
-        telegram_thread_{ [this]()
+        telegram_thread_
+        { [this]()
             {
                 while (work_)
                 {
                     Service::log.log("Long poll started");
                     longPoll_.start();
                 }
-            } }
+            }
+        }
     {
         brocker_.addSub(this);
 

@@ -23,24 +23,25 @@ public:
                 Service::log.log({"Message from RCON: ", std::string(log)});
             };
         
+        
         std::ifstream ifs(Service::config.LATEST_LENGTH_PATH);
         if (ifs.is_open())
         {
             ifs >> latestLength;
             ifs.close();
         }
-        ifs.close();
+
         
         client_.start(true);
     }
     ~MinecraftChatSubscriber()
     {
-        std::ofstream ifs(Service::config.LATEST_LENGTH_PATH);
+        /*std::ofstream ifs(Service::config.LATEST_LENGTH_PATH);
         if (ifs.is_open())
         {
             ifs << latestLength;
             ifs.close();
-        }
+        }*/
     }
 
     void sendMessageToYouself(const ClientMessage& message, const TypeMessage type) override
@@ -54,7 +55,7 @@ public:
     }
     void update() override
     {
-        extractMessages();
+        parseMessage();
         for(const auto& i : messages_)
             brocker_.sendMessage(id_, i, TypeMessage::message);
         messages_.clear();
@@ -73,23 +74,53 @@ private:
 
 private:
 
-    void extractMessages()
+    //void extractMessages()
+    //{
+    //    /*static std::streamsize latestLength = 0;
+    //    static bool firstRun = true;
+    //    if (firstRun)
+    //    {
+    //        firstRun = false;
+
+    //        std::ifstream ifs(Service::config.LATEST_LENGTH_PATH);
+    //        if (ifs.is_open())
+    //        {
+    //            ifs >> latestLength;
+    //            ifs.close();
+    //        }
+    //    }*/
+
+
+    //    std::ifstream logFile(Service::config.LOGS_PATH, std::ios::in | std::ios::binary);
+    //    if (!logFile.is_open())
+    //        return Service::log.log({ "Error: Unable to open log file: ", Service::config.LOGS_PATH });
+
+    //    logFile.ignore((std::numeric_limits<std::streamsize>::max)());
+    //    std::streamsize length = logFile.gcount();
+    //    logFile.clear();
+    //    logFile.seekg(length < latestLength ? std::streamsize(0) : latestLength, std::ios_base::beg);
+    //    latestLength = length;
+    //    std::ofstream ofs(Service::config.LATEST_LENGTH_PATH);
+    //    if (ofs.is_open())
+    //    {
+    //        ofs << latestLength;
+    //        ofs.close();
+    //    }
+
+    //    std::string line;
+    //    while (getline(logFile, line))
+    //    {
+    //        if (line.find("[Not Secure]") != std::string::npos)
+    //        {
+    //            messages_.push_back((line.substr(line.find("[Not Secure]") + 13)));
+    //        }
+    //    }
+
+    //    logFile.close();
+    //}
+
+    void parseMessage()
     {
-        /*static std::streamsize latestLength = 0;
-        static bool firstRun = true;
-        if (firstRun)
-        {
-            firstRun = false;
-
-            std::ifstream ifs(Service::config.LATEST_LENGTH_PATH);
-            if (ifs.is_open())
-            {
-                ifs >> latestLength;
-                ifs.close();
-            }
-        }*/
-
-
         std::ifstream logFile(Service::config.LOGS_PATH, std::ios::in | std::ios::binary);
         if (!logFile.is_open())
             return Service::log.log({ "Error: Unable to open log file: ", Service::config.LOGS_PATH });
@@ -99,7 +130,7 @@ private:
         logFile.clear();
         logFile.seekg(length < latestLength ? std::streamsize(0) : latestLength, std::ios_base::beg);
         latestLength = length;
-        std::ofstream ofs(Service::config.TG_BOT_KEY);
+        std::ofstream ofs(Service::config.LATEST_LENGTH_PATH);
         if (ofs.is_open())
         {
             ofs << latestLength;
@@ -107,16 +138,13 @@ private:
         }
 
         std::string line;
-        while (getline(logFile, line))
-        {
+        while (std::getline(logFile, line))
             if (line.find("[Not Secure]") != std::string::npos)
-            {
                 messages_.push_back((line.substr(line.find("[Not Secure]") + 13)));
-            }
-        }
 
         logFile.close();
     }
+
 
 
 };
