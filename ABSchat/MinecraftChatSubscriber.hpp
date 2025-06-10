@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <thread>
 #include <regex>
 #include <fstream>
 #include <list>
@@ -56,9 +57,13 @@ public:
     void update() override
     {
         extractMessages();
+        if (messages_.empty())
+            return;
         for(const auto& i : messages_)
             brocker_.sendMessage(id_, i, TypeMessage::message);
         messages_.clear();
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(64ms);
     }
 
 

@@ -12,7 +12,7 @@ class TgBotSubscriber : public ClientSubscriber
 public:
     TgBotSubscriber(ClientBrocker& brocker) :
         ClientSubscriber{}, brocker_{ brocker }, bot_{ Service::config.TG_BOT_KEY }, longPoll_{bot_},
-        /*telegram_thread_
+        telegram_thread_
         { [this]()
             {
                 while (work_)
@@ -21,7 +21,7 @@ public:
                     longPoll_.start();
                 }
             }
-        }*/
+        }
     {
         brocker_.addSub(this);
 
@@ -35,7 +35,7 @@ public:
     ~TgBotSubscriber()
     {
         work_ = false;
-        //telegram_thread_.join();
+        telegram_thread_.join();
     }
 
     void sendMessageToYouself(const ClientMessage& message, const TypeMessage type) override
@@ -45,8 +45,7 @@ public:
     }
     void update() override
     {
-        Service::log.log("Long poll started");
-        longPoll_.start();
+        
     }
 
 private:
@@ -61,7 +60,7 @@ private:
 
     std::set<int64_t> chats_;
 
-    //std::thread telegram_thread_;
+    std::thread telegram_thread_;
 
 private:
 
