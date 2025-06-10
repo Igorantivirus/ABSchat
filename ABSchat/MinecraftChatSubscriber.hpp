@@ -24,12 +24,12 @@ public:
             };
         
         
-        std::ifstream ifs(Service::config.LATEST_LENGTH_PATH);
+        /*std::ifstream ifs(Service::config.LATEST_LENGTH_PATH);
         if (ifs.is_open())
         {
             ifs >> latestLength;
             ifs.close();
-        }
+        }*/
 
         
         client_.start(true);
@@ -55,7 +55,7 @@ public:
     }
     void update() override
     {
-        parseMessage();
+        extractMessages();
         for(const auto& i : messages_)
             brocker_.sendMessage(id_, i, TypeMessage::message);
         messages_.clear();
@@ -70,7 +70,7 @@ private:
 
     std::list<std::string> messages_;
 
-    std::streamsize latestLength = 0;
+    //std::streamsize latestLength = 0;
 
 private:
 
@@ -119,9 +119,50 @@ private:
     //    logFile.close();
     //}
 
+    void extractMessages()
+    {
+        using namespace std;
+        static streamsize latestLength = 0;
+        static bool firstRun = true;
+        if (firstRun) {
+            firstRun = false;
+            ifstream ifs(Service::config.LATEST_LENGTH_PATH);
+            if (ifs.is_open()) {
+                ifs >> latestLength;
+                ifs.close();
+            }
+        }
+
+
+        ifstream logFile(Service::config.LOGS_PATH, ios::in | ios::binary);
+        if (!logFile.is_open()) {
+            cerr << "Error: Unable to open log file: " << Service::config.LOGS_PATH << endl;
+            return;
+        }
+
+        logFile.ignore((numeric_limits<streamsize>::max)());
+        streamsize length = logFile.gcount();
+        logFile.clear();
+        logFile.seekg(length < latestLength ? streamsize(0) : latestLength, ios_base::beg);
+        latestLength = length;
+        ofstream ofs(Service::config.LATEST_LENGTH_PATH);
+        if (ofs.is_open()) {
+            ofs << latestLength;
+            ofs.close();
+        }
+
+        string line;
+        while (getline(logFile, line)) {
+            if (line.find("[Not Secure]") != string::npos) { messages_.push_back((line.substr(line.find("[Not Secure]") + 13))); }
+        }
+
+        logFile.close();
+    }
+
+
     void parseMessage()
     {
-        std::ifstream logFile(Service::config.LOGS_PATH, std::ios::in | std::ios::binary);
+        /*std::ifstream logFile(Service::config.LOGS_PATH, std::ios::in | std::ios::binary);
         if (!logFile.is_open())
             return Service::log.log({ "Error: Unable to open log file: ", Service::config.LOGS_PATH });
 
@@ -142,7 +183,7 @@ private:
             if (line.find("[Not Secure]") != std::string::npos)
                 messages_.push_back((line.substr(line.find("[Not Secure]") + 13)));
 
-        logFile.close();
+        logFile.close();*/
     }
 
 
